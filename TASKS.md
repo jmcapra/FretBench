@@ -59,7 +59,7 @@
   - `fetchModelPricing(modelId)` via `GET /api/v1/models`
 
 ### 6. Cost Estimation
-- **Status:** open
+- **Status:** done
 - **Depends on:** 5
 - **Files:** `cli/src/cost.ts`
 - **Details:**
