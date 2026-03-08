@@ -21,7 +21,7 @@
   - Run `cd cli && pnpm install` to verify
 
 ### 2. Database Layer
-- **Status:** open
+- **Status:** done
 - **Depends on:** 1
 - **Files:** `cli/src/db.ts`
 - **Details:**
