@@ -67,7 +67,7 @@
   - `formatCostEstimate()`: chalk-formatted terminal output
 
 ### 7. Test Runner
-- **Status:** open
+- **Status:** done
 - **Depends on:** 2, 3, 4, 5, 6
 - **Files:** `cli/src/runner.ts`
 - **Details:**
