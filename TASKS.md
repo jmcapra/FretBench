@@ -38,7 +38,7 @@
   - `eval-version.ts`: `CURRENT_SYSTEM_PROMPT` constant (full prompt from PRD §5.3), `CURRENT_EVAL_CONFIG` object, `computePromptHash()` (SHA-256), `resolveEvalVersion(db)` (compare hash → insert new version if changed)
 
 ### 4. Grader
-- **Status:** open
+- **Status:** done
 - **Depends on:** 1
 - **Files:** `cli/src/grader.ts`
 - **Details:**
