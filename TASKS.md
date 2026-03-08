@@ -105,7 +105,7 @@
   - Remove about.astro
 
 ### 11. Homepage Leaderboard Section
-- **Status:** open
+- **Status:** done
 - **Depends on:** 9, 10
 - **Files:** `website/src/pages/index.astro`
 - **Details:**

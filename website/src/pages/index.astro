@@ -1,5 +1,16 @@
 ---
 import '../styles/global.css';
+import { getTopModels, hasResults } from '../data/loadResults';
+
+const showResults = hasResults();
+const topModels = showResults ? getTopModels(5) : [];
+
+const tuningAbbrev: Record<string, string> = {
+  'Standard': 'Std',
+  'Drop D': 'DropD',
+  'Half-Step Down': 'HSD',
+  'Drop Db': 'DropDb',
+};
 ---
 
 <!doctype html>
@@ -67,6 +78,57 @@ import '../styles/global.css';
 
   </div>
 </main>
+
+<section id="leaderboard">
+  <div class="lb-inner">
+    <h2 class="lb-heading">Leaderboard</h2>
+    {showResults ? (
+      <>
+        <div class="lb-table-wrap">
+          <table class="lb-table">
+            <thead>
+              <tr>
+                <th class="col-rank">#</th>
+                <th class="col-model">Model</th>
+                <th class="col-score">Score</th>
+                <th class="col-tuning">Tuning Breakdown</th>
+                <th class="col-cost">Cost</th>
+                <th class="col-date">Last Tested</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topModels.map((m) => (
+                <tr class={m.rank <= 3 ? 'top-three' : ''}>
+                  <td class="col-rank"><span class="rank-num">{m.rank}</span></td>
+                  <td class="col-model">
+                    <span class="model-name">{m.model_name}</span>
+                    <span class="model-provider">{m.provider}</span>
+                  </td>
+                  <td class="col-score"><span class="score-val">{m.score_pct.toFixed(1)}%</span></td>
+                  <td class="col-tuning">
+                    <div class="tuning-stats">
+                      {Object.entries(tuningAbbrev).map(([full, abbr]) => (
+                        <span class="tuning-stat">
+                          <span class="tuning-label">{abbr}</span>
+                          <span class="tuning-val">{m.tuning_scores[full] != null ? `${m.tuning_scores[full].toFixed(0)}%` : '—'}</span>
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td class="col-cost">{m.total_cost != null ? `$${m.total_cost.toFixed(3)}` : '—'}</td>
+                  <td class="col-date">{m.completed_at ? new Date(m.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <a href="/results" class="lb-link">View all results &rarr;</a>
+      </>
+    ) : (
+      <p class="lb-empty">No benchmark results yet. Run the CLI to generate data.</p>
+    )}
+  </div>
+</section>
 
 <footer>
   <div class="stats">
@@ -388,12 +450,168 @@ import '../styles/global.css';
 
   .stat-sep { color: var(--border-bright); font-size: 1.1rem; }
 
+  /* ─── Leaderboard section ─── */
+  #leaderboard {
+    border-top: 1px solid var(--border);
+    animation: fadeUp 0.6s 0.25s ease both;
+  }
+
+  .lb-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 4rem 3rem;
+  }
+
+  .lb-heading {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    margin-bottom: 2rem;
+  }
+
+  .lb-empty {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--text-muted);
+    padding: 3rem 0;
+    text-align: center;
+  }
+
+  .lb-table-wrap {
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+
+  .lb-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+
+  .lb-table thead th {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .lb-table tbody td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text-muted);
+  }
+
+  .lb-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .lb-table tbody tr.top-three {
+    border-left: 2px solid var(--amber-dim);
+  }
+
+  .col-rank { width: 3rem; text-align: center; }
+
+  .rank-num {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--amber);
+  }
+
+  .col-model { min-width: 140px; }
+
+  .model-name {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  .model-provider {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .col-score { white-space: nowrap; }
+
+  .score-val {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 0.02em;
+  }
+
+  .col-tuning { min-width: 200px; }
+
+  .tuning-stats {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .tuning-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+  }
+
+  .tuning-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .tuning-val {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .col-cost { white-space: nowrap; }
+  .col-date { white-space: nowrap; }
+
+  .lb-link {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    color: var(--amber);
+    text-decoration: none;
+    border-bottom: 1px solid var(--amber-dim);
+    padding-bottom: 1px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .lb-link:hover {
+    color: var(--amber-bright);
+    border-color: var(--amber);
+  }
+
   /* ─── Responsive ─── */
   @media (max-width: 820px) {
     .hero { grid-template-columns: 1fr; }
     .hero-left { padding: 3.5rem 1.5rem 3rem; border-right: none; border-bottom: 1px solid var(--border); }
     .hero-right { padding: 3rem 1.5rem; }
     footer { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+    .lb-inner { padding: 3rem 1.5rem; }
+    .col-tuning, .col-cost { display: none; }
+    .lb-table thead .col-tuning,
+    .lb-table thead .col-cost { display: none; }
   }
 </style>
 
