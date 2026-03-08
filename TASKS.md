@@ -97,7 +97,7 @@
   - `loadResults.ts`: typed accessors — `getLeaderboard()`, `getTopModels(n)`, `getHardestQuestions()`, `getTuningDifficulty()`, `hasResults()`, `getGeneratedAt()`
 
 ### 10. Website Nav + Page Cleanup
-- **Status:** open
+- **Status:** done
 - **Files:** `website/src/pages/index.astro`, `website/src/pages/blog/index.astro`, `website/src/layouts/BlogPost.astro`
 - **Delete:** `website/src/pages/about.astro`
 - **Details:**
