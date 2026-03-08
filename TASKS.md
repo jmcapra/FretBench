@@ -89,7 +89,7 @@
   - Wire all commands in `index.ts`: `run`, `export`, `stats`, `leaderboard`, `models`
 
 ### 9. Website Data Layer
-- **Status:** open
+- **Status:** done
 - **Depends on:** 8 (schema only)
 - **Files:** `website/src/data/results.json`, `website/src/data/loadResults.ts`
 - **Details:**
