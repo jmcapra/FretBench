@@ -30,7 +30,7 @@
   - Query helpers: `insertEvalVersion`, `getLatestEvalVersion`, `insertRun`, `updateRunStatus`, `insertRunResult`, `getRunSummary`, `getRunTuningBreakdown`, `getLeaderboard`, `getModelStats`, `getAllCompletedResults`
 
 ### 3. Models Loader + Eval Version
-- **Status:** open
+- **Status:** done
 - **Depends on:** 1
 - **Files:** `cli/src/models.ts`, `cli/src/eval-version.ts`
 - **Details:**
