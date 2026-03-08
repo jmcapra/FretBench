@@ -1,0 +1,480 @@
+---
+import '../styles/global.css';
+import {
+  getLeaderboard,
+  getHardestQuestions,
+  getTuningDifficulty,
+  hasResults,
+  getGeneratedAt,
+  type LeaderboardEntry,
+  type HardestQuestion,
+  type TuningDifficulty,
+} from '../data/loadResults';
+import resultsData from '../data/results.json';
+
+const showResults = hasResults();
+const leaderboard = getLeaderboard();
+const hardest = getHardestQuestions().slice(0, 10);
+const tuningDiff = getTuningDifficulty();
+const generatedAt = getGeneratedAt();
+const evalVersion = (resultsData as any).eval_version ?? null;
+const datasetVersion = (resultsData as any).dataset_version ?? null;
+const datasetStats = (resultsData as any).dataset_stats ?? { total_cases: 100, tuning_counts: {} };
+const tuningCounts: [string, number][] = Object.entries(datasetStats.tuning_counts ?? {});
+
+const tierColors: Record<string, string> = {
+  flagship: 'var(--amber)',
+  mid: 'var(--text-muted)',
+  small: 'var(--text-dim)',
+};
+
+const tuningAbbrev: Record<string, string> = {
+  'Standard': 'Std',
+  'Drop D': 'DropD',
+  'Half-Step Down': 'HSD',
+  'Drop Db': 'DropDb',
+};
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Results — FretBench</title>
+  <meta name="description" content="Full benchmark results — leaderboard, tuning difficulty, and hardest questions." />
+  <link rel="icon" href="/favicon.ico" />
+  <meta name="generator" content={Astro.generator} />
+</head>
+<body>
+
+<nav>
+  <a href="/" class="wordmark">FretBench</a>
+  <div class="nav-links">
+    <a href="/results" class="nav-link nav-link--active">Results</a>
+    <a href="/blog" class="nav-link">Blog</a>
+    <a href="https://github.com/datawhale/FretBench" class="nav-link" target="_blank" rel="noopener">
+      GitHub
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+        <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+</nav>
+
+{showResults ? (
+<main>
+  <!-- Header -->
+  <section class="results-header">
+    <h1>Benchmark Results</h1>
+    <div class="results-meta">
+      {datasetVersion && <span class="meta-item">Dataset <code>{datasetVersion}</code></span>}
+      {evalVersion && <span class="meta-item">Eval <code>v{evalVersion}</code></span>}
+      {generatedAt && <span class="meta-item">Generated {new Date(generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>}
+    </div>
+  </section>
+
+  <!-- Full Leaderboard -->
+  <section class="section">
+    <h2 class="section-heading">Leaderboard</h2>
+    <div class="table-wrap">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th class="col-rank">#</th>
+            <th class="col-model">Model</th>
+            <th class="col-tier">Tier</th>
+            <th class="col-score">Score</th>
+            <th class="col-tuning">Tuning Breakdown</th>
+            <th class="col-cost">Cost</th>
+            <th class="col-date">Last Tested</th>
+          </tr>
+        </thead>
+        <tbody>
+          {leaderboard.map((m) => (
+            <tr class={m.rank <= 3 ? 'top-three' : ''}>
+              <td class="col-rank"><span class="rank-num">{m.rank}</span></td>
+              <td class="col-model">
+                <span class="model-name">{m.model_name}</span>
+                <span class="model-provider">{m.provider}</span>
+              </td>
+              <td class="col-tier">
+                <span class="tier-badge" style={`border-color: ${tierColors[m.tier] ?? 'var(--text-dim)'}`}>{m.tier}</span>
+              </td>
+              <td class="col-score"><span class="score-val">{m.score_pct.toFixed(1)}%</span></td>
+              <td class="col-tuning">
+                <div class="tuning-stats">
+                  {Object.entries(tuningAbbrev).map(([full, abbr]) => (
+                    <span class="tuning-stat">
+                      <span class="tuning-label">{abbr}</span>
+                      <span class="tuning-val">{m.tuning_scores[full] != null ? `${m.tuning_scores[full].toFixed(0)}%` : '—'}</span>
+                    </span>
+                  ))}
+                </div>
+              </td>
+              <td class="col-cost">{m.total_cost != null ? `$${m.total_cost.toFixed(3)}` : '—'}</td>
+              <td class="col-date">{m.completed_at ? new Date(m.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Tuning Difficulty -->
+  {tuningDiff.length > 0 && (
+  <section class="section">
+    <h2 class="section-heading">Tuning Difficulty</h2>
+    <div class="tuning-cards">
+      {tuningDiff.map((t) => (
+        <div class="tuning-card">
+          <span class="tuning-card-name">{t.tuning}</span>
+          <span class="tuning-card-score">{t.avg_score_pct.toFixed(1)}%</span>
+          <span class="tuning-card-runs">{t.total_runs} run{t.total_runs !== 1 ? 's' : ''}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+  )}
+
+  <!-- Hardest Questions -->
+  {hardest.length > 0 && (
+  <section class="section">
+    <h2 class="section-heading">Hardest Questions</h2>
+    <div class="table-wrap">
+      <table class="results-table hardest-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tuning</th>
+            <th>Success Rate</th>
+            <th>Attempts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {hardest.map((q) => (
+            <tr>
+              <td><code>{q.test_case_id}</code></td>
+              <td>{q.tuning}</td>
+              <td><span class="score-val">{q.success_rate.toFixed(1)}%</span></td>
+              <td>{q.total_attempts}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  )}
+
+  <!-- Dataset Info -->
+  <section class="section">
+    <h2 class="section-heading">Dataset</h2>
+    <div class="dataset-info">
+      <div class="dataset-stat">
+        <span class="dataset-stat-num">{datasetStats.total_cases}</span>
+        <span class="dataset-stat-label">test cases</span>
+      </div>
+      {tuningCounts.map(([tuning, count]) => (
+        <div class="dataset-stat">
+          <span class="dataset-stat-num">{count}</span>
+          <span class="dataset-stat-label">{tuning}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+</main>
+) : (
+<main class="empty-main">
+  <p class="empty-state">No benchmark results available yet.</p>
+</main>
+)}
+
+<footer>
+  <p class="footer-note">Open source &middot; MIT license</p>
+</footer>
+
+<style>
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+  .empty-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .empty-state {
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 6rem 2rem;
+  }
+
+  /* ─── Header ─── */
+  .results-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+    animation: fadeUp 0.7s ease both;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 6vw, 4rem);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  .results-meta {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-item {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .meta-item code {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  /* ─── Sections ─── */
+  .section {
+    margin-bottom: 3.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .section-heading {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+  }
+
+  /* ─── Tables ─── */
+  .table-wrap {
+    overflow-x: auto;
+  }
+
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+
+  .results-table thead th {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .results-table tbody td {
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text-muted);
+  }
+
+  .results-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .results-table tbody tr.top-three {
+    border-left: 2px solid var(--amber-dim);
+  }
+
+  .col-rank { width: 3rem; text-align: center; }
+
+  .rank-num {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: var(--amber);
+  }
+
+  .col-model { min-width: 140px; }
+
+  .model-name {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  .model-provider {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .col-tier { white-space: nowrap; }
+
+  .tier-badge {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border: 1px solid;
+    padding: 0.15rem 0.5rem;
+  }
+
+  .col-score { white-space: nowrap; }
+
+  .score-val {
+    font-family: var(--font-mono);
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 0.02em;
+  }
+
+  .col-tuning { min-width: 200px; }
+
+  .tuning-stats {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .tuning-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+  }
+
+  .tuning-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .tuning-val {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .col-cost { white-space: nowrap; }
+  .col-date { white-space: nowrap; }
+
+  /* ─── Tuning cards ─── */
+  .tuning-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  .tuning-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--amber-dim);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .tuning-card-name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: 0.04em;
+  }
+
+  .tuning-card-score {
+    font-family: var(--font-mono);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--amber);
+  }
+
+  .tuning-card-runs {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* ─── Hardest table ─── */
+  .hardest-table .score-val {
+    font-size: 1rem;
+  }
+
+  /* ─── Dataset info ─── */
+  .dataset-info {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .dataset-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .dataset-stat-num {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .dataset-stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  footer { justify-content: flex-end; }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 820px) {
+    main { padding: 2.5rem 1.5rem; }
+    .tuning-cards { grid-template-columns: repeat(2, 1fr); }
+    .col-tuning, .col-cost, .col-tier { display: none; }
+    .results-table thead .col-tuning,
+    .results-table thead .col-cost,
+    .results-table thead .col-tier { display: none; }
+  }
+
+  @media (max-width: 480px) {
+    .tuning-cards { grid-template-columns: 1fr; }
+  }
+</style>
+
+</body>
+</html>

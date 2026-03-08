@@ -119,7 +119,7 @@
   - Design: Cormorant headings, Courier Prime data, amber highlights, fade-up animation
 
 ### 12. Results Page
-- **Status:** open
+- **Status:** done
 - **Depends on:** 9, 10
 - **Files:** `website/src/pages/results.astro`
 - **Details:**
