@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-08T15:56:58.039Z",
+  "generated_at": "2026-03-08T16:06:52.119Z",
   "eval_version": "1.0.0",
   "dataset_version": "577c513b40c4537ed1b65a3acbe49db2d73e4ca1",
   "leaderboard": [
@@ -146,6 +146,22 @@
         "Half-Step Down": 16.07,
         "Standard": 25.76
       }
+    },
+    {
+      "rank": 10,
+      "model_id": "deepseek/deepseek-v3.2-speciale",
+      "model_name": "DeepSeek V3.2 Speciale",
+      "provider": "DeepSeek",
+      "tier": "mid",
+      "score_pct": 0,
+      "total_cost": 0.037528,
+      "completed_at": "2026-03-08T16:05:46.234Z",
+      "tuning_scores": {
+        "Drop D": 0,
+        "Drop Db": 0,
+        "Half-Step Down": 0,
+        "Standard": 0
+      }
     }
   ],
   "hardest_questions": [
@@ -153,83 +169,83 @@
       "test_case_id": "FB_008",
       "tuning": "Drop Db",
       "success_rate": 0,
-      "total_attempts": 9
+      "total_attempts": 10
     },
     {
       "test_case_id": "FB_016",
       "tuning": "Half-Step Down",
       "success_rate": 0,
-      "total_attempts": 9
+      "total_attempts": 10
     },
     {
       "test_case_id": "FB_029",
       "tuning": "Drop D",
       "success_rate": 0,
-      "total_attempts": 9
+      "total_attempts": 10
     },
     {
       "test_case_id": "FB_035",
       "tuning": "Drop D",
       "success_rate": 0,
-      "total_attempts": 9
+      "total_attempts": 10
     },
     {
       "test_case_id": "FB_040",
       "tuning": "Half-Step Down",
       "success_rate": 0,
-      "total_attempts": 9
+      "total_attempts": 10
     },
     {
       "test_case_id": "FB_042",
       "tuning": "Standard",
       "success_rate": 0,
-      "total_attempts": 9
+      "total_attempts": 10
     },
     {
       "test_case_id": "FB_045",
       "tuning": "Standard",
       "success_rate": 0,
-      "total_attempts": 9
+      "total_attempts": 10
     },
     {
       "test_case_id": "FB_048",
       "tuning": "Standard",
       "success_rate": 0,
-      "total_attempts": 9
+      "total_attempts": 10
     },
     {
       "test_case_id": "FB_050",
       "tuning": "Drop Db",
       "success_rate": 0,
-      "total_attempts": 9
+      "total_attempts": 10
     },
     {
       "test_case_id": "FB_051",
       "tuning": "Standard",
       "success_rate": 0,
-      "total_attempts": 9
+      "total_attempts": 10
     }
   ],
   "tuning_difficulty": [
     {
       "tuning": "Drop Db",
-      "avg_score_pct": 22.62,
-      "total_runs": 9
+      "avg_score_pct": 20.36,
+      "total_runs": 10
     },
     {
       "tuning": "Half-Step Down",
-      "avg_score_pct": 27.38,
-      "total_runs": 9
+      "avg_score_pct": 24.64,
+      "total_runs": 10
     },
     {
       "tuning": "Drop D",
-      "avg_score_pct": 39.93,
-      "total_runs": 9
+      "avg_score_pct": 35.94,
+      "total_runs": 10
     },
     {
       "tuning": "Standard",
-      "avg_score_pct": 42.59,
-      "total_runs": 9
+      "avg_score_pct": 38.33,
+      "total_runs": 10
     }
   ],
   "dataset_stats": {

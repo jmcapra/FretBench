@@ -1,5 +1,6 @@
 .playwright-mcp/
-data/fretbench.db
+data/fretbench.db*
+data/
 cli/.env
 cli/node_modules/
 cli/dist/
