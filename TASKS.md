@@ -78,7 +78,7 @@
   - Error handling: failed individual test case → record with error field + `correct: false`, continue
 
 ### 8. Stats + Export + Wire Commands
-- **Status:** open
+- **Status:** done
 - **Depends on:** 7
 - **Files:** `cli/src/stats.ts`, update `cli/src/index.ts`
 - **Details:**

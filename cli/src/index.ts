@@ -2,6 +2,9 @@
 
 import 'dotenv/config';
 import { Command } from 'commander';
+import { runModel, runMultiple, resolveModels } from './runner.js';
+import { getDb } from './db.js';
+import { showLeaderboard, showModelStats, exportResults, showModels } from './stats.js';
 
 const program = new Command();
 
@@ -17,36 +20,51 @@ program
   .option('--tier <tier>', 'Run all models in a tier (flagship, mid, small)')
   .option('--dry-run', 'Show cost estimate without executing')
   .option('--concurrency <n>', 'Max concurrent model runs', '3')
-  .action(async (_model, _options) => {
-    console.log('run command — not yet implemented');
+  .action(async (model, options) => {
+    const models = resolveModels(model, options);
+    const concurrency = parseInt(options.concurrency, 10);
+    const dryRun = options.dryRun ?? false;
+
+    if (models.length === 1) {
+      await runModel(models[0].id, { dryRun });
+    } else {
+      await runMultiple(models, concurrency, dryRun);
+    }
   });
 
 program
   .command('export')
   .description('Export results to static JSON for website build')
-  .action(async () => {
-    console.log('export command — not yet implemented');
+  .action(() => {
+    const db = getDb();
+    exportResults(db);
   });
 
 program
   .command('stats [model]')
   .description('Show summary stats for a model')
-  .action(async (_model) => {
-    console.log('stats command — not yet implemented');
+  .action((model) => {
+    if (!model) {
+      console.error('Usage: fretbench stats <model-id>');
+      process.exit(1);
+    }
+    const db = getDb();
+    showModelStats(db, model);
   });
 
 program
   .command('leaderboard')
   .description('Show full leaderboard')
-  .action(async () => {
-    console.log('leaderboard command — not yet implemented');
+  .action(() => {
+    const db = getDb();
+    showLeaderboard(db);
   });
 
 program
   .command('models')
   .description('List registered models')
-  .action(async () => {
-    console.log('models command — not yet implemented');
+  .action(() => {
+    showModels();
   });
 
 program.parse();
