@@ -48,7 +48,7 @@
   - `grade(response, testCase)`: returns `{ extracted: string | null, correct: boolean }` — case-insensitive match against answers, check enharmonic if !strict_spelling
 
 ### 5. OpenRouter Client
-- **Status:** open
+- **Status:** done
 - **Depends on:** 1
 - **Files:** `cli/src/openrouter.ts`
 - **Details:**
