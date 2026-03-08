@@ -10,7 +10,7 @@ const program = new Command();
 
 program
   .name('fretbench')
-  .description('FretBench — Guitar fretboard note-name reasoning benchmark for LLMs')
+  .description('FretBench \u2014 Guitar fretboard note-name reasoning benchmark for LLMs')
   .version('1.0.0');
 
 program
@@ -20,44 +20,51 @@ program
   .option('--tier <tier>', 'Run all models in a tier (flagship, mid, small)')
   .option('--dry-run', 'Show cost estimate without executing')
   .option('--concurrency <n>', 'Max concurrent model runs', '3')
+  .option('--dataset <path>', 'Path to test cases JSON file (default: ./test-cases.json)')
+  .option('--dataset-name <name>', 'Suite identifier (default: fretbench-official)')
   .action(async (model, options) => {
     const models = resolveModels(model, options);
     const concurrency = parseInt(options.concurrency, 10);
     const dryRun = options.dryRun ?? false;
+    const datasetPath = options.dataset as string | undefined;
+    const datasetName = options.datasetName as string | undefined;
 
     if (models.length === 1) {
-      await runModel(models[0].id, { dryRun });
+      await runModel(models[0].id, { dryRun, datasetPath, datasetName });
     } else {
-      await runMultiple(models, concurrency, dryRun);
+      await runMultiple(models, concurrency, dryRun, datasetPath, datasetName);
     }
   });
 
 program
   .command('export')
   .description('Export results to static JSON for website build')
-  .action(() => {
+  .option('--dataset-name <name>', 'Filter by dataset suite (default: fretbench-official)')
+  .action((options) => {
     const db = getDb();
-    exportResults(db);
+    exportResults(db, options.datasetName as string | undefined);
   });
 
 program
   .command('stats [model]')
   .description('Show summary stats for a model')
-  .action((model) => {
+  .option('--dataset-name <name>', 'Filter by dataset suite (default: fretbench-official)')
+  .action((model, options) => {
     if (!model) {
       console.error('Usage: fretbench stats <model-id>');
       process.exit(1);
     }
     const db = getDb();
-    showModelStats(db, model);
+    showModelStats(db, model, options.datasetName as string | undefined);
   });
 
 program
   .command('leaderboard')
   .description('Show full leaderboard')
-  .action(() => {
+  .option('--dataset-name <name>', 'Filter by dataset suite (default: fretbench-official)')
+  .action((options) => {
     const db = getDb();
-    showLeaderboard(db);
+    showLeaderboard(db, options.datasetName as string | undefined);
   });
 
 program

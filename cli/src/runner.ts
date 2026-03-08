@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -12,34 +12,48 @@ import { estimateRunCost, formatCostEstimate } from './cost.js';
 import { getModel, getEnabledModels, getModelsByTier, type ModelEntry } from './models.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEST_CASES_PATH = resolve(__dirname, '../../test-cases/test-cases.json');
+const DEFAULT_TEST_CASES_PATH = resolve(__dirname, '../../test-cases.json');
 
-export function loadTestCases(): TestCase[] {
-  const raw = readFileSync(TEST_CASES_PATH, 'utf-8');
+export function loadTestCases(path?: string): TestCase[] {
+  const filePath = path ? resolve(path) : DEFAULT_TEST_CASES_PATH;
+  const raw = readFileSync(filePath, 'utf-8');
   return JSON.parse(raw) as TestCase[];
 }
 
-export function getDatasetVersion(): { sha: string; tag: string | null } {
-  const testCasesDir = resolve(__dirname, '../../test-cases');
-  const sha = execSync('git rev-parse HEAD', { cwd: testCasesDir, encoding: 'utf-8' }).trim();
+export function getDatasetVersion(path?: string): string {
+  const filePath = path ? resolve(path) : DEFAULT_TEST_CASES_PATH;
 
-  let tag: string | null = null;
+  // Try to get the git SHA for the file
   try {
-    tag = execSync('git describe --tags --exact-match', { cwd: testCasesDir, encoding: 'utf-8' }).trim();
+    const dir = dirname(filePath);
+    const sha = execSync(`git log -1 --format=%H -- "${filePath}"`, {
+      cwd: dir,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (sha) return sha;
   } catch {
-    // No tag on this commit
+    // Not in a git repo or git not available
   }
 
-  return { sha, tag };
+  // Fallback: use file mtime as ISO date
+  const stats = statSync(filePath);
+  return stats.mtime.toISOString();
 }
 
 function assembleUserPrompt(testCase: TestCase): string {
   return `${testCase.tab}\n\n${testCase.question}`;
 }
 
+export interface RunOptions {
+  dryRun?: boolean;
+  datasetPath?: string;
+  datasetName?: string;
+}
+
 export async function runModel(
   modelId: string,
-  options: { dryRun?: boolean } = {}
+  options: RunOptions = {}
 ): Promise<void> {
   const model = getModel(modelId);
   if (!model) {
@@ -47,7 +61,8 @@ export async function runModel(
     process.exit(1);
   }
 
-  const testCases = loadTestCases();
+  const datasetName = options.datasetName ?? 'fretbench-official';
+  const testCases = loadTestCases(options.datasetPath);
 
   if (options.dryRun) {
     const estimate = await estimateRunCost(modelId, testCases, CURRENT_SYSTEM_PROMPT);
@@ -57,18 +72,18 @@ export async function runModel(
 
   const db = getDb();
   const evalVersionId = resolveEvalVersion(db);
-  const { sha: datasetVersion, tag: datasetTag } = getDatasetVersion();
+  const datasetVersion = getDatasetVersion(options.datasetPath);
 
   const runId = insertRun(db, {
     model_id: modelId,
     eval_version_id: evalVersionId,
+    dataset_name: datasetName,
     dataset_version: datasetVersion,
-    dataset_tag: datasetTag,
     started_at: new Date().toISOString(),
   });
 
   console.log(chalk.bold(`\nRunning ${model.name}`) + chalk.dim(` (${modelId})`));
-  console.log(chalk.dim(`Run #${runId} | ${testCases.length} test cases | eval v${CURRENT_EVAL_CONFIG.version}\n`));
+  console.log(chalk.dim(`Run #${runId} | ${testCases.length} test cases | eval v${CURRENT_EVAL_CONFIG.version} | dataset: ${datasetName}\n`));
 
   let correctCount = 0;
 
@@ -103,8 +118,8 @@ export async function runModel(
         error: null,
       });
 
-      const mark = gradeResult.correct ? chalk.green('✓') : chalk.red('✗');
-      const note = gradeResult.extracted ?? '∅';
+      const mark = gradeResult.correct ? chalk.green('\u2713') : chalk.red('\u2717');
+      const note = gradeResult.extracted ?? '\u2205';
       console.log(`${index} ${tc.id} ${mark} ${note} (${result.latencyMs}ms)`);
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : String(err);
@@ -126,7 +141,7 @@ export async function runModel(
         error: errorMsg,
       });
 
-      console.log(`${index} ${tc.id} ${chalk.red('✗ ERROR:')} ${errorMsg}`);
+      console.log(`${index} ${tc.id} ${chalk.red('\u2717 ERROR:')} ${errorMsg}`);
     }
   }
 
@@ -137,9 +152,9 @@ export async function runModel(
   const summary = getRunSummary(db, runId);
   const breakdown = getRunTuningBreakdown(db, runId);
 
-  console.log(chalk.dim('\n' + '─'.repeat(50)));
+  console.log(chalk.dim('\n' + '\u2500'.repeat(50)));
   if (summary) {
-    console.log(chalk.bold(`\n${model.name} — Run #${runId} Summary`));
+    console.log(chalk.bold(`\n${model.name} \u2014 Run #${runId} Summary`));
     console.log(`  Score: ${chalk.green(summary.score_pct + '%')} (${summary.correct}/${summary.total_cases})`);
     if (summary.total_cost != null) {
       console.log(`  Cost:  ${chalk.cyan('$' + summary.total_cost.toFixed(4))}`);
@@ -159,7 +174,9 @@ export async function runModel(
 export async function runMultiple(
   models: ModelEntry[],
   concurrency: number,
-  dryRun: boolean
+  dryRun: boolean,
+  datasetPath?: string,
+  datasetName?: string
 ): Promise<void> {
   if (models.length === 0) {
     console.log(chalk.yellow('No models to run.'));
@@ -174,9 +191,9 @@ export async function runMultiple(
   while (queue.length > 0 || running.size > 0) {
     while (running.size < concurrency && queue.length > 0) {
       const model = queue.shift()!;
-      const promise = runModel(model.id, { dryRun })
+      const promise = runModel(model.id, { dryRun, datasetPath, datasetName })
         .catch((err) => {
-          console.error(chalk.red(`\nFailed: ${model.name} — ${err instanceof Error ? err.message : String(err)}`));
+          console.error(chalk.red(`\nFailed: ${model.name} \u2014 ${err instanceof Error ? err.message : String(err)}`));
         })
         .then(() => {
           running.delete(promise);

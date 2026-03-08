@@ -1,0 +1,32 @@
+[
+  {
+    "_note": "These are format examples only, not real benchmark questions",
+    "id": "EX_001",
+    "tuning": "Standard",
+    "tab": "e|-------------------|\nB|-------------------|\nG|-------------------|\nD|---2---------------|\nA|-------------------|\nE|-------------------|",
+    "question": "What note is played on the D string?",
+    "answers": ["E"]
+  },
+  {
+    "id": "EX_002",
+    "tuning": "Drop D",
+    "tab": "e|-------------------|\nB|-------------------|\nG|-------------------|\nD|-------------------|\nA|-------------------|\nD|---3---------------|",
+    "question": "What is the note played on the D (6th) string?",
+    "answers": ["F"]
+  },
+  {
+    "id": "EX_003",
+    "tuning": "Half-Step Down",
+    "tab": "eb|-------------------|\nBb|-------------------|\nGb|---4---------------|\nDb|-------------------|\nAb|-------------------|\nEb|-------------------|",
+    "question": "What note is being played on the Gb string?",
+    "answers": ["Bb", "A#"]
+  },
+  {
+    "id": "EX_004",
+    "tuning": "Standard",
+    "tab": "e|-------------------|\nB|---1---------------|\nG|-------------------|\nD|-------------------|\nA|-------------------|\nE|-------------------|",
+    "question": "What is the note played on the B string?",
+    "answers": ["C"],
+    "strict_spelling": true
+  }
+]

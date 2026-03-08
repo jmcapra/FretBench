@@ -23,8 +23,8 @@ The website is 100% static — no server-side logic, no database queries at runt
 
 ```
 FretBench/
-├── test-cases/              # git submodule → jmcapra/fretbench-test-cases (private)
-│   └── test-cases.json      # the dataset
+├── test-cases.json          # the dataset (gitignored, user-supplied)
+├── test-cases.examples.json # format examples (tracked)
 ├── cli/                     # CLI tool (TypeScript, runs locally)
 │   ├── src/
 │   │   ├── index.ts         # entry point
@@ -60,13 +60,11 @@ FretBench/
 
 ## 3. Test Case Dataset
 
-### 3.1 Repository Structure
+### 3.1 File Layout
 
-- **Public repo:** `jmcapra/FretBench` — all code, website, CLI
-- **Private repo:** `jmcapra/fretbench-test-cases` — test case data only
-- Tracked as a **git submodule** at `./test-cases/`
-- The file `test-cases/test-cases.json` is the canonical dataset path
-- The root-level `test-cases.json` is legacy and must be removed / gitignored
+- **`test-cases.json`** (repo root) — the actual test cases, **gitignored** and never committed to the public repo. Users must supply their own or obtain the official dataset separately.
+- **`test-cases.examples.json`** (repo root, tracked) — 3-5 dummy test cases demonstrating the JSON format. Not used for benchmarking.
+- The CLI defaults to `./test-cases.json` but accepts `--dataset <path>` to load any compatible JSON file.
 
 ### 3.2 Dataset Format
 
@@ -83,15 +81,22 @@ FretBench/
 ]
 ```
 
-- **100 test cases** across 4 tunings: Standard (33), Half-Step Down (34), Drop D (16), Drop Db (17)
+- **182 test cases** across 4 tunings: Standard (66), Half-Step Down (56), Drop D (32), Drop Db (28)
 - `answers`: array of acceptable responses (handles enharmonic equivalents like `["C#", "Db"]`)
 - `strict_spelling`: when `true`, only exact matches from `answers` are accepted
 
-### 3.3 Versioning
+### 3.3 Multiple Suites
 
-- Dataset is versioned via git tags in the private repo (e.g., `v1.0.0`, `v1.1.0`)
-- Every benchmark run records the dataset version (git commit SHA + tag if present)
-- The submodule pin in the main repo tracks which dataset version is active
+The CLI supports multiple independent test suites via `--dataset-name`:
+- Default suite: `fretbench-official`
+- Custom suites: any user-provided name (e.g., `"my-custom-set"`, `"advanced-jazz"`)
+- The DB stores `dataset_name` on every run, and all queries (leaderboard, stats, export) filter by it
+
+### 3.4 Versioning
+
+- If the dataset file is inside a git repo, the CLI records the latest git SHA for that file as `dataset_version`
+- Otherwise, the file's modification timestamp (ISO 8601) is used
+- `dataset_version` is freeform text — git SHA, tag, date, or any user-provided identifier
 
 ---
 
@@ -249,18 +254,31 @@ fretbench run --tier flagship
 # Dry run — show cost estimate without executing
 fretbench run openai/gpt-5.4 --dry-run
 
+# Use a custom dataset file and suite name
+fretbench run openai/gpt-5.4 --dataset ./my-cases.json --dataset-name "custom-suite"
+
 # Export results to static JSON for website build
 fretbench export
+fretbench export --dataset-name "custom-suite"
 
 # Show summary stats for a model
 fretbench stats openai/gpt-5.4
+fretbench stats openai/gpt-5.4 --dataset-name "custom-suite"
 
 # Show full leaderboard
 fretbench leaderboard
+fretbench leaderboard --dataset-name "custom-suite"
 
 # List registered models
 fretbench models
 ```
+
+**Dataset flags:**
+
+| Flag | Applies to | Default | Description |
+|------|-----------|---------|-------------|
+| `--dataset <path>` | `run` | `./test-cases.json` | Path to test cases JSON file |
+| `--dataset-name <name>` | `run`, `export`, `stats`, `leaderboard` | `fretbench-official` | Suite identifier stored in DB |
 
 ### 5.3 Prompt Templates
 
@@ -414,8 +432,8 @@ CREATE TABLE runs (
   id              INTEGER PRIMARY KEY AUTOINCREMENT,
   model_id        TEXT NOT NULL,           -- OpenRouter model ID
   eval_version_id INTEGER NOT NULL REFERENCES eval_versions(id),
-  dataset_version TEXT NOT NULL,           -- git SHA of test-cases submodule
-  dataset_tag     TEXT,                    -- git tag if present (e.g. "v1.0.0")
+  dataset_name    TEXT NOT NULL DEFAULT 'fretbench-official', -- suite identifier
+  dataset_version TEXT NOT NULL,           -- git SHA, tag, date, or user-provided
   started_at      TEXT NOT NULL,           -- ISO 8601
   completed_at    TEXT,                    -- ISO 8601
   status          TEXT NOT NULL DEFAULT 'running' -- running | completed | failed
@@ -459,6 +477,7 @@ SELECT
   r.id AS run_id,
   r.model_id,
   r.eval_version_id,
+  r.dataset_name,
   r.dataset_version,
   r.started_at,
   r.completed_at,
@@ -607,14 +626,7 @@ Stored in `cli/.env` (gitignored).
 ```
 data/fretbench.db
 cli/.env
-test-cases.json          # root-level legacy file
-```
-
-### 9.3 Submodule Setup
-
-```bash
-git submodule add git@github.com:jmcapra/fretbench-test-cases.git test-cases
-git submodule update --init
+/test-cases.json         # real dataset, never tracked
 ```
 
 ---

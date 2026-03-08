@@ -10,8 +10,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // --- Leaderboard ---
 
-export function showLeaderboard(db: Database.Database): void {
-  const rows = getLeaderboard(db);
+export function showLeaderboard(db: Database.Database, datasetName?: string): void {
+  const rows = getLeaderboard(db, datasetName);
 
   if (rows.length === 0) {
     console.log(chalk.yellow('No completed runs yet.'));
@@ -22,16 +22,16 @@ export function showLeaderboard(db: Database.Database): void {
 
   const header = `  ${pad('Rank', 6)}${pad('Model', 28)}${pad('Provider', 12)}${pad('Score', 10)}${pad('Cost', 10)}Last Run`;
   console.log(chalk.dim(header));
-  console.log(chalk.dim('  ' + '─'.repeat(86)));
+  console.log(chalk.dim('  ' + '\u2500'.repeat(86)));
 
   rows.forEach((row, i) => {
     const rank = String(i + 1);
     const model = getModel(row.model_id);
     const name = model?.name ?? row.model_id;
-    const provider = model?.provider ?? '—';
+    const provider = model?.provider ?? '\u2014';
     const score = row.score_pct + '%';
-    const cost = row.total_cost != null ? '$' + row.total_cost.toFixed(4) : '—';
-    const date = row.completed_at ? row.completed_at.slice(0, 10) : '—';
+    const cost = row.total_cost != null ? '$' + row.total_cost.toFixed(4) : '\u2014';
+    const date = row.completed_at ? row.completed_at.slice(0, 10) : '\u2014';
 
     const scoreColor = row.score_pct >= 80 ? chalk.green : row.score_pct >= 50 ? chalk.yellow : chalk.red;
 
@@ -45,17 +45,17 @@ export function showLeaderboard(db: Database.Database): void {
 
 // --- Model Stats ---
 
-export function showModelStats(db: Database.Database, modelId: string): void {
+export function showModelStats(db: Database.Database, modelId: string, datasetName?: string): void {
   const model = getModel(modelId);
   const displayName = model?.name ?? modelId;
-  const runs = getModelStats(db, modelId);
+  const runs = getModelStats(db, modelId, datasetName);
 
   if (runs.length === 0) {
     console.log(chalk.yellow(`No completed runs for ${displayName}.`));
     return;
   }
 
-  console.log(chalk.bold(`\n  ${displayName} — ${runs.length} run(s)\n`));
+  console.log(chalk.bold(`\n  ${displayName} \u2014 ${runs.length} run(s)\n`));
 
   // Summary of all runs
   const scores = runs.map((r) => r.score_pct);
@@ -117,8 +117,8 @@ export function showModelStats(db: Database.Database, modelId: string): void {
   if (runs.length > 1) {
     console.log(chalk.dim('\n  Run history:'));
     for (const r of runs) {
-      const cost = r.total_cost != null ? '$' + r.total_cost.toFixed(4) : '—';
-      const date = r.completed_at ? r.completed_at.slice(0, 10) : '—';
+      const cost = r.total_cost != null ? '$' + r.total_cost.toFixed(4) : '\u2014';
+      const date = r.completed_at ? r.completed_at.slice(0, 10) : '\u2014';
       console.log(`    #${String(r.run_id).padEnd(4)} ${date}  ${r.score_pct}%  ${cost}`);
     }
   }
@@ -168,9 +168,9 @@ interface DatasetStats {
   tuning_counts: Record<string, number>;
 }
 
-export function exportResults(db: Database.Database): void {
-  const leaderboardRows = getLeaderboard(db);
-  const allResults = getAllCompletedResults(db);
+export function exportResults(db: Database.Database, datasetName?: string): void {
+  const leaderboardRows = getLeaderboard(db, datasetName);
+  const allResults = getAllCompletedResults(db, datasetName);
   const evalVersion = getLatestEvalVersion(db);
 
   // Build leaderboard entries with tuning scores
@@ -244,7 +244,7 @@ export function exportResults(db: Database.Database): void {
   }
 
   // If no results, load model registry to get total cases count
-  const totalCases = questionStats.size || 100;
+  const totalCases = questionStats.size || 182;
 
   // Get dataset version from latest run
   let datasetVersion: string | null = null;
@@ -291,9 +291,9 @@ export function showModels(): void {
     const tierModels = models.filter((m) => m.tier === tier);
     if (tierModels.length === 0) continue;
 
-    console.log(chalk.dim(`  ── ${tier.toUpperCase()} ──`));
+    console.log(chalk.dim(`  \u2500\u2500 ${tier.toUpperCase()} \u2500\u2500`));
     for (const m of tierModels) {
-      const status = m.enabled ? chalk.green('●') : chalk.dim('○');
+      const status = m.enabled ? chalk.green('\u25cf') : chalk.dim('\u25cb');
       console.log(`  ${status} ${pad(m.name, 24)}${pad(m.provider, 12)}${chalk.dim(m.id)}`);
     }
     console.log('');

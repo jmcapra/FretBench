@@ -21,9 +21,16 @@ export function getDb(): Database.Database {
 function migrate(db: Database.Database): void {
   const version = db.pragma('user_version', { simple: true }) as number;
 
-  if (version < 1) {
+  if (version < 2) {
+    // Drop and recreate all tables for v2 schema (local-only DB, no real data to preserve)
     db.exec(`
-      CREATE TABLE IF NOT EXISTS eval_versions (
+      DROP VIEW IF EXISTS run_tuning_breakdown;
+      DROP VIEW IF EXISTS run_summary;
+      DROP TABLE IF EXISTS run_results;
+      DROP TABLE IF EXISTS runs;
+      DROP TABLE IF EXISTS eval_versions;
+
+      CREATE TABLE eval_versions (
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
         version         TEXT NOT NULL UNIQUE,
         system_prompt   TEXT NOT NULL,
@@ -35,18 +42,18 @@ function migrate(db: Database.Database): void {
         created_at      TEXT NOT NULL
       );
 
-      CREATE TABLE IF NOT EXISTS runs (
+      CREATE TABLE runs (
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
         model_id        TEXT NOT NULL,
         eval_version_id INTEGER NOT NULL REFERENCES eval_versions(id),
+        dataset_name    TEXT NOT NULL DEFAULT 'fretbench-official',
         dataset_version TEXT NOT NULL,
-        dataset_tag     TEXT,
         started_at      TEXT NOT NULL,
         completed_at    TEXT,
         status          TEXT NOT NULL DEFAULT 'running'
       );
 
-      CREATE TABLE IF NOT EXISTS run_results (
+      CREATE TABLE run_results (
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
         run_id          INTEGER NOT NULL REFERENCES runs(id),
         test_case_id    TEXT NOT NULL,
@@ -64,17 +71,19 @@ function migrate(db: Database.Database): void {
         error           TEXT
       );
 
-      CREATE INDEX IF NOT EXISTS idx_run_results_run_id ON run_results(run_id);
-      CREATE INDEX IF NOT EXISTS idx_run_results_test_case ON run_results(test_case_id);
-      CREATE INDEX IF NOT EXISTS idx_run_results_tuning ON run_results(tuning);
-      CREATE INDEX IF NOT EXISTS idx_runs_model ON runs(model_id);
-      CREATE INDEX IF NOT EXISTS idx_runs_eval_version ON runs(eval_version_id);
+      CREATE INDEX idx_run_results_run_id ON run_results(run_id);
+      CREATE INDEX idx_run_results_test_case ON run_results(test_case_id);
+      CREATE INDEX idx_run_results_tuning ON run_results(tuning);
+      CREATE INDEX idx_runs_model ON runs(model_id);
+      CREATE INDEX idx_runs_eval_version ON runs(eval_version_id);
+      CREATE INDEX idx_runs_dataset_name ON runs(dataset_name);
 
-      CREATE VIEW IF NOT EXISTS run_summary AS
+      CREATE VIEW run_summary AS
       SELECT
         r.id AS run_id,
         r.model_id,
         r.eval_version_id,
+        r.dataset_name,
         r.dataset_version,
         r.started_at,
         r.completed_at,
@@ -90,7 +99,7 @@ function migrate(db: Database.Database): void {
       WHERE r.status = 'completed'
       GROUP BY r.id;
 
-      CREATE VIEW IF NOT EXISTS run_tuning_breakdown AS
+      CREATE VIEW run_tuning_breakdown AS
       SELECT
         run_id,
         tuning,
@@ -100,7 +109,7 @@ function migrate(db: Database.Database): void {
       FROM run_results
       GROUP BY run_id, tuning;
 
-      PRAGMA user_version = 1;
+      PRAGMA user_version = 2;
     `);
   }
 }
@@ -139,8 +148,8 @@ export interface RunRow {
   id: number;
   model_id: string;
   eval_version_id: number;
+  dataset_name: string;
   dataset_version: string;
-  dataset_tag: string | null;
   started_at: string;
   completed_at: string | null;
   status: string;
@@ -151,8 +160,8 @@ export function insertRun(
   row: Omit<RunRow, 'id' | 'completed_at' | 'status'>
 ): number {
   const stmt = db.prepare(`
-    INSERT INTO runs (model_id, eval_version_id, dataset_version, dataset_tag, started_at)
-    VALUES (@model_id, @eval_version_id, @dataset_version, @dataset_tag, @started_at)
+    INSERT INTO runs (model_id, eval_version_id, dataset_name, dataset_version, started_at)
+    VALUES (@model_id, @eval_version_id, @dataset_name, @dataset_version, @started_at)
   `);
   const result = stmt.run(row);
   return result.lastInsertRowid as number;
@@ -205,6 +214,7 @@ export interface RunSummaryRow {
   run_id: number;
   model_id: string;
   eval_version_id: number;
+  dataset_name: string;
   dataset_version: string;
   started_at: string;
   completed_at: string;
@@ -241,17 +251,19 @@ export interface LeaderboardRow {
   completed_at: string;
 }
 
-export function getLeaderboard(db: Database.Database): LeaderboardRow[] {
+export function getLeaderboard(db: Database.Database, datasetName?: string): LeaderboardRow[] {
+  const filter = datasetName ?? 'fretbench-official';
   return db.prepare(`
     SELECT rs.model_id, rs.run_id, rs.score_pct, rs.total_cost, rs.completed_at
     FROM run_summary rs
     INNER JOIN (
       SELECT model_id, MAX(run_id) AS latest_run_id
       FROM run_summary
+      WHERE dataset_name = ?
       GROUP BY model_id
     ) latest ON rs.run_id = latest.latest_run_id
     ORDER BY rs.score_pct DESC, rs.total_cost ASC
-  `).all() as LeaderboardRow[];
+  `).all(filter) as LeaderboardRow[];
 }
 
 export interface ModelStatsRow {
@@ -265,8 +277,11 @@ export interface ModelStatsRow {
   avg_latency_ms: number;
 }
 
-export function getModelStats(db: Database.Database, modelId: string): ModelStatsRow[] {
-  return db.prepare('SELECT * FROM run_summary WHERE model_id = ? ORDER BY run_id DESC').all(modelId) as ModelStatsRow[];
+export function getModelStats(db: Database.Database, modelId: string, datasetName?: string): ModelStatsRow[] {
+  const filter = datasetName ?? 'fretbench-official';
+  return db.prepare(
+    'SELECT * FROM run_summary WHERE model_id = ? AND dataset_name = ? ORDER BY run_id DESC'
+  ).all(modelId, filter) as ModelStatsRow[];
 }
 
 export interface CompletedResultRow {
@@ -280,14 +295,15 @@ export interface CompletedResultRow {
   completed_at: string;
 }
 
-export function getAllCompletedResults(db: Database.Database): CompletedResultRow[] {
+export function getAllCompletedResults(db: Database.Database, datasetName?: string): CompletedResultRow[] {
+  const filter = datasetName ?? 'fretbench-official';
   return db.prepare(`
     SELECT rr.run_id, r.model_id, rr.test_case_id, rr.tuning, rr.correct,
            rs.score_pct, rs.total_cost, rs.completed_at
     FROM run_results rr
     JOIN runs r ON r.id = rr.run_id
     JOIN run_summary rs ON rs.run_id = rr.run_id
-    WHERE r.status = 'completed'
+    WHERE r.status = 'completed' AND r.dataset_name = ?
     ORDER BY rr.run_id, rr.test_case_id
-  `).all() as CompletedResultRow[];
+  `).all(filter) as CompletedResultRow[];
 }

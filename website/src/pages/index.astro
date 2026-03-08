@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { getTopModels, hasResults } from '../data/loadResults';
+import guitarBg from '../assets/guitar-strings.png';
 
 const showResults = hasResults();
 const topModels = showResults ? getTopModels(5) : [];
@@ -19,18 +20,21 @@ const tuningAbbrev: Record<string, string> = {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FretBench — Guitar Fretboard Benchmark</title>
-  <meta name="description" content="A benchmark suite for evaluating guitar fretboard note-name reasoning in language models. 100 test cases across Standard, Drop D, Half-Step Down, and Drop Db tunings." />
+  <meta name="description" content="A benchmark suite for evaluating guitar fretboard note-name reasoning in language models. 182 test cases across Standard, Drop D, Half-Step Down, and Drop Db tunings." />
   <link rel="icon" href="/favicon.ico" />
   <meta name="generator" content={Astro.generator} />
 </head>
 <body>
+
+<div class="bg-cover" style={`background-image: url(${guitarBg.src})`}></div>
+<div class="bg-overlay"></div>
 
 <nav>
   <span class="wordmark">FretBench</span>
   <div class="nav-links">
     <a href="/results" class="nav-link">Results</a>
     <a href="/blog" class="nav-link">Blog</a>
-    <a href="https://github.com/datawhale/FretBench" class="nav-link" target="_blank" rel="noopener">
+    <a href="https://github.com/jmcapra/FretBench" class="nav-link" target="_blank" rel="noopener">
       GitHub
       <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
         <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -50,10 +54,10 @@ const tuningAbbrev: Record<string, string> = {
         A benchmark suite for evaluating guitar fretboard note-name reasoning in language models.
       </p>
       <div class="cta-group">
-        <a href="https://github.com/datawhale/FretBench" class="cta-primary" target="_blank" rel="noopener">
+        <a href="https://github.com/jmcapra/FretBench" class="cta-primary" target="_blank" rel="noopener">
           View on GitHub
         </a>
-        <a href="https://github.com/datawhale/FretBench/blob/main/test-cases.json" class="cta-secondary" target="_blank" rel="noopener">
+        <a href="https://github.com/jmcapra/FretBench/blob/main/test-cases.json" class="cta-secondary" target="_blank" rel="noopener">
           Browse test cases
         </a>
       </div>
@@ -133,7 +137,7 @@ const tuningAbbrev: Record<string, string> = {
 <footer>
   <div class="stats">
     <div class="stat">
-      <span class="stat-num">100</span>
+      <span class="stat-num">182</span>
       <span class="stat-label">test cases</span>
     </div>
     <div class="stat-sep">&middot;</div>
@@ -248,6 +252,34 @@ const tuningAbbrev: Record<string, string> = {
 </script>
 
 <style>
+  /* ─── Background cover ─── */
+  .bg-cover {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.22;
+    filter: saturate(0.5) brightness(0.9);
+    animation: bgFadeIn 1.5s ease both;
+  }
+
+  .bg-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(ellipse at 30% 20%, transparent 0%, var(--bg) 80%),
+      linear-gradient(180deg, rgba(10,9,8,0.1) 0%, rgba(10,9,8,0.6) 60%, var(--bg) 100%);
+    pointer-events: none;
+  }
+
+  @keyframes bgFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 0.22; }
+  }
+
   /* ─── Hero layout ─── */
   main {
     flex: 1;
@@ -335,7 +367,8 @@ const tuningAbbrev: Record<string, string> = {
     align-items: center;
     justify-content: center;
     padding: 5rem 3rem 5rem 4rem;
-    background: var(--surface);
+    background: rgba(17, 16, 9, 0.85);
+    backdrop-filter: blur(2px);
   }
 
   .tab-card {

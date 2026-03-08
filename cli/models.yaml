@@ -10,7 +10,7 @@ models:
     name: GPT-5.4 Pro
     provider: OpenAI
     tier: flagship
-    enabled: true
+    enabled: false
 
   - id: anthropic/claude-opus-4.6
     name: Claude Opus 4.6
@@ -40,7 +40,7 @@ models:
     name: Grok 4.1 Fast
     provider: xAI
     tier: flagship
-    enabled: true
+    enabled: false  # not available on OpenRouter
 
   - id: qwen/qwen3.5-plus-02-15
     name: Qwen 3.5 Plus
@@ -54,8 +54,8 @@ models:
     tier: flagship
     enabled: true
 
-  - id: meta-llama/llama-4-maverick
-    name: Llama 4 Maverick
+  - id: meta-llama/llama-4-scout-17b-16e-instruct
+    name: Llama 4 Scout
     provider: Meta
     tier: flagship
     enabled: true
@@ -85,8 +85,8 @@ models:
     tier: mid
     enabled: true
 
-  - id: meta-llama/llama-4-scout
-    name: Llama 4 Scout
+  - id: meta-llama/llama-3.3-70b-instruct
+    name: Llama 3.3 70B
     provider: Meta
     tier: mid
     enabled: true

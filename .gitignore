@@ -4,3 +4,4 @@ cli/.env
 cli/node_modules/
 cli/dist/
 /test-cases.json
+website/node_modules/
