@@ -9,7 +9,7 @@
 ## Tasks
 
 ### 1. CLI Scaffolding
-- **Status:** open
+- **Status:** done
 - **Files:** `cli/package.json`, `cli/tsconfig.json`, `cli/models.yaml`, `cli/src/index.ts`, `cli/.env.example`, `.gitignore`
 - **Details:**
   - `package.json`: `"bin": { "fretbench": "./src/index.ts" }`, `"type": "module"`, deps: `better-sqlite3`, `commander`, `yaml`, `openai`, `dotenv`, `chalk`; devDeps: `tsx`, `@types/better-sqlite3`, `@types/node`, `typescript`
