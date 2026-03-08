@@ -1,0 +1,400 @@
+---
+import '../styles/global.css';
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FretBench — Guitar Fretboard Benchmark</title>
+  <meta name="description" content="A benchmark suite for evaluating guitar fretboard note-name reasoning in language models. 100 test cases across Standard, Drop D, Half-Step Down, and Drop Db tunings." />
+  <link rel="icon" href="/favicon.ico" />
+  <meta name="generator" content={Astro.generator} />
+</head>
+<body>
+
+<nav>
+  <span class="wordmark">FretBench</span>
+  <div class="nav-links">
+    <a href="/blog" class="nav-link">Blog</a>
+    <a href="https://github.com/datawhale/FretBench" class="nav-link" target="_blank" rel="noopener">
+      GitHub
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+        <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+</nav>
+
+<main>
+  <div class="hero">
+
+    <div class="hero-left">
+      <h1>
+        <span class="title-line">Fret</span><span class="title-line accent">Bench</span>
+      </h1>
+      <p class="tagline">
+        A benchmark suite for evaluating guitar fretboard note-name reasoning in language models.
+      </p>
+      <div class="cta-group">
+        <a href="https://github.com/datawhale/FretBench" class="cta-primary" target="_blank" rel="noopener">
+          View on GitHub
+        </a>
+        <a href="https://github.com/datawhale/FretBench/blob/main/test-cases.json" class="cta-secondary" target="_blank" rel="noopener">
+          Browse test cases
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="tab-card">
+        <div class="tab-meta">
+          <span class="tuning-badge"></span>
+          <span class="case-id"></span>
+        </div>
+        <pre class="tab-display" id="tab-display"></pre>
+        <p class="tab-question">
+          <em></em>
+        </p>
+        <div class="tab-answer">
+          <span class="answer-label">answer</span>
+          <span class="answer-value"></span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-num">100</span>
+      <span class="stat-label">test cases</span>
+    </div>
+    <div class="stat-sep">&middot;</div>
+    <div class="stat">
+      <span class="stat-num">4</span>
+      <span class="stat-label">tunings</span>
+    </div>
+    <div class="stat-sep">&middot;</div>
+    <div class="stat">
+      <span class="stat-label">Standard &middot; Drop D &middot; Half-Step Down &middot; Drop D&#9837;</span>
+    </div>
+  </div>
+  <p class="footer-note">Open source &middot; MIT license</p>
+</footer>
+
+<script>
+  import { animate } from 'motion';
+
+  const EXAMPLES = [
+    {
+      id: 'FB_003', tuning: 'Standard',
+      tab: 'e|---------3---------|\nB|-------3---3-------|\nG|-----0-------0-----|\nD|---0-----------0---|\nA|-------------------|\nE|-3-----------------|',
+      question: 'What is the second note played on the B string?',
+      answers: ['D']
+    },
+    {
+      id: 'FB_060', tuning: 'Standard',
+      tab: 'e|---1---------------|\nB|---3---------------|\nG|---2---------------|\nD|---0---------------|\nA|-------------------|\nE|-------------------|',
+      question: 'What is the note played on the B string?',
+      answers: ['D']
+    },
+    {
+      id: 'FB_001', tuning: 'Half-Step Down',
+      tab: 'eb|-------------------|\nBb|---------0---------|\nGb|-----0-------0-----|\nDb|---1---1-------1---|\nAb|-3-----------------|\nEb|-------------------|',
+      question: 'What is the first note played on the Db string?',
+      answers: ['D']
+    },
+    {
+      id: 'FB_013', tuning: 'Half-Step Down',
+      tab: 'eb|---3---------------|\nBb|---3---------------|\nGb|---0---------------|\nDb|---0---------------|\nAb|---2---------------|\nEb|---3---------------|',
+      question: 'What is the note played on the eb string?',
+      answers: ['F#', 'Gb']
+    },
+    {
+      id: 'FB_005', tuning: 'Drop D',
+      tab: 'e|-------------------|\nB|-------------------|\nG|-------------------|\nD|-0-h-3---5---0-----|\nA|-0-h-3---5---0-----|\nD|-0-h-3---5---0-----|',
+      question: 'What is the second note played on the D (6th) string?',
+      answers: ['F']
+    },
+    {
+      id: 'FB_035', tuning: 'Drop D',
+      tab: 'e|-------------------|\nB|-------------------|\nG|---11--------------|\nD|---12--------------|\nA|---12--------------|\nD|---0---------------|',
+      question: 'What is the note played on the G string?',
+      answers: ['F#', 'Gb']
+    },
+    {
+      id: 'FB_026', tuning: 'Drop Db',
+      tab: 'eb|-------------------|\nBb|---5---------------|\nGb|---4---------------|\nDb|---2---------------|\nAb|---2---------------|\nDb|---2---------------|',
+      question: 'What is the note played on the Db (6th) string?',
+      answers: ['D#', 'Eb']
+    },
+    {
+      id: 'FB_056', tuning: 'Drop Db',
+      tab: 'eb|-------------------|\nBb|---10--------------|\nGb|---9---------------|\nDb|---7---------------|\nAb|---7---------------|\nDb|---7---------------|',
+      question: 'What is the note played on the Db (6th) string?',
+      answers: ['G#', 'Ab']
+    }
+  ];
+
+  function colorizeTab(pre) {
+    const raw = pre.textContent ?? '';
+    pre.innerHTML = raw.split('\n').map(line => {
+      if (!line) return '';
+      const m = line.match(/^([A-Ge]b?)\|(.+)\|$/);
+      if (!m) return line;
+      const [, name, body] = m;
+      const colored = body.replace(/(\d+)|(-)/g, (_, d, dash) =>
+        d ? `<span class="t-num">${d}</span>` : `<span class="t-dash">-</span>`
+      );
+      return `<span class="t-name">${name}</span><span class="t-pipe">|</span>${colored}<span class="t-pipe">|</span>`;
+    }).join('\n');
+  }
+
+  function showCase(idx) {
+    const c = EXAMPLES[idx];
+    document.querySelector('.tuning-badge').textContent = c.tuning;
+    document.querySelector('.case-id').textContent = c.id;
+    const pre = document.getElementById('tab-display');
+    pre.textContent = c.tab;
+    colorizeTab(pre);
+    document.querySelector('.tab-question em').textContent = c.question;
+    document.querySelector('.answer-value').textContent = c.answers.join(' / ');
+  }
+
+  let current = 0;
+  showCase(0);
+
+  const card = document.querySelector('.tab-card');
+
+  async function advance() {
+    await animate(card, { opacity: 0 }, { duration: 0.35 }).finished;
+    current = (current + 1) % EXAMPLES.length;
+    showCase(current);
+    animate(card, { opacity: 1 }, { duration: 0.35 });
+  }
+
+  function startTimer() { return setInterval(advance, 3500); }
+
+  let timer = startTimer();
+  card.addEventListener('mouseenter', () => clearInterval(timer));
+  card.addEventListener('mouseleave', () => { timer = startTimer(); });
+</script>
+
+<style>
+  /* ─── Hero layout ─── */
+  main {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5rem 4rem 5rem 3rem;
+    border-right: 1px solid var(--border);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(4.5rem, 8vw, 8rem);
+    font-weight: 300;
+    line-height: 0.90;
+    letter-spacing: -0.02em;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .title-line { display: block; }
+  .title-line.accent { color: var(--amber); font-style: italic; }
+
+  .tagline {
+    font-size: 1.1rem;
+    font-weight: 400;
+    line-height: 1.7;
+    color: var(--text-muted);
+    max-width: 34ch;
+    margin-bottom: 3rem;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+
+  .cta-group {
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    flex-wrap: wrap;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  .cta-primary {
+    display: inline-block;
+    padding: 0.65rem 1.6rem;
+    background: var(--amber);
+    color: var(--bg);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-family: var(--font-display);
+    transition: background 0.2s;
+  }
+  .cta-primary:hover { background: var(--amber-bright); }
+
+  .cta-secondary {
+    display: inline-block;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-family: var(--font-display);
+    border-bottom: 1px solid var(--border-bright);
+    padding-bottom: 1px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .cta-secondary:hover { color: var(--text); border-color: var(--text-muted); }
+
+  /* ─── Tab card ─── */
+  .hero-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 3rem 5rem 4rem;
+    background: var(--surface);
+  }
+
+  .tab-card {
+    width: 100%;
+    max-width: 400px;
+    animation: fadeUp 0.7s 0.15s ease both;
+  }
+
+  .tab-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+  }
+
+  .tuning-badge {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--amber);
+    border: 1px solid var(--amber-dim);
+    padding: 0.2rem 0.65rem;
+  }
+
+  .case-id {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+  }
+
+  .tab-display {
+    font-family: var(--font-mono);
+    font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+    line-height: 2;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--amber-dim);
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 1.5rem;
+    white-space: pre;
+    overflow-x: auto;
+    letter-spacing: 0.05em;
+    color: var(--text);
+  }
+
+  .tab-question {
+    font-size: 1rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin-bottom: 1rem;
+  }
+
+  .tab-answer {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .answer-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .answer-value {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--amber);
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── Homepage footer extras ─── */
+  footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+    animation: fadeUp 0.5s 0.3s ease both;
+  }
+
+  .stats {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .stat { display: flex; align-items: baseline; gap: 0.5rem; }
+
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .stat-sep { color: var(--border-bright); font-size: 1.1rem; }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 820px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-left { padding: 3.5rem 1.5rem 3rem; border-right: none; border-bottom: 1px solid var(--border); }
+    .hero-right { padding: 3rem 1.5rem; }
+    footer { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  }
+</style>
+
+</body>
+</html>

@@ -1,0 +1,242 @@
+---
+import '../styles/global.css';
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from '../components/FormattedDate.astro';
+
+type Props = CollectionEntry<'blog'>['data'];
+const { title, description, pubDate, updatedDate } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} — FretBench</title>
+  <meta name="description" content={description} />
+  <link rel="icon" href="/favicon.ico" />
+  <meta name="generator" content={Astro.generator} />
+</head>
+<body>
+
+<nav>
+  <a href="/" class="wordmark">FretBench</a>
+  <div class="nav-links">
+    <a href="/blog" class="nav-link">Blog</a>
+    <a href="https://github.com/datawhale/FretBench" class="nav-link" target="_blank" rel="noopener">
+      GitHub
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+        <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+</nav>
+
+<main>
+  <article>
+    <header class="post-header">
+      <div class="post-meta">
+        <a href="/blog" class="back-link">← Blog</a>
+        <span class="post-date">
+          <FormattedDate date={pubDate} />
+          {updatedDate && <span class="updated"> · Updated <FormattedDate date={updatedDate} /></span>}
+        </span>
+      </div>
+      <h1>{title}</h1>
+      {description && <p class="post-desc">{description}</p>}
+    </header>
+    <div class="prose">
+      <slot />
+    </div>
+  </article>
+</main>
+
+<footer>
+  <p class="footer-note">Open source &middot; MIT license</p>
+</footer>
+
+<style>
+  /* ─── Layout ─── */
+  html { font-family: var(--font-body); }
+
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+  }
+
+  /* ─── Post header ─── */
+  .post-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .back-link {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--amber); }
+
+  .post-date {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .updated { color: var(--text-dim); }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+
+  .post-desc {
+    font-size: 1.05rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* ─── Prose ─── */
+  .prose { font-size: 1rem; line-height: 1.85; }
+
+  .prose :global(p)         { margin-bottom: 1.5em; }
+  .prose :global(li)        { margin-bottom: 0.25em; }
+
+  .prose :global(h2) {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 400;
+    color: var(--text);
+    margin: 2.5em 0 0.75em;
+    letter-spacing: -0.01em;
+  }
+  .prose :global(h3) {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: var(--text);
+    margin: 2em 0 0.5em;
+  }
+  .prose :global(h4),
+  .prose :global(h5),
+  .prose :global(h6) {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin: 2em 0 0.5em;
+  }
+
+  .prose :global(a) {
+    color: var(--amber);
+    text-underline-offset: 3px;
+    text-decoration-color: var(--amber-dim);
+    transition: text-decoration-color 0.2s;
+  }
+  .prose :global(a:hover) { text-decoration-color: var(--amber); }
+
+  .prose :global(strong) { color: var(--text); font-weight: 600; }
+
+  .prose :global(ul),
+  .prose :global(ol) { padding-left: 1.5em; margin-bottom: 1.5em; }
+
+  .prose :global(blockquote) {
+    border-left: 2px solid var(--amber-dim);
+    padding-left: 1.5em;
+    margin: 2em 0;
+    font-style: italic;
+    opacity: 0.85;
+  }
+
+  .prose :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    padding: 0.15em 0.4em;
+    color: var(--amber);
+  }
+
+  .prose :global(pre) {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-left: 2px solid var(--amber-dim);
+    padding: 1.5rem 1.75rem;
+    margin: 1.5em 0;
+    overflow-x: auto;
+  }
+  .prose :global(pre code) {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.9em;
+    color: var(--text);
+  }
+
+  .prose :global(hr) {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 3em 0;
+  }
+
+  .prose :global(img) {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+  }
+
+  .prose :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5em;
+    font-size: 0.95rem;
+  }
+  .prose :global(th) {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-bright);
+    padding: 0.5em 1em 0.5em 0;
+    text-align: left;
+  }
+  .prose :global(td) {
+    border-bottom: 1px solid var(--border);
+    padding: 0.6em 1em 0.6em 0;
+  }
+
+  footer { justify-content: flex-end; }
+
+  @media (max-width: 600px) {
+    main { padding: 2.5rem 1.5rem; }
+  }
+</style>
+
+</body>
+</html>
