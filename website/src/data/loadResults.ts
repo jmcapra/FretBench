@@ -8,6 +8,7 @@ export interface LeaderboardEntry {
   model_name: string;
   provider: string;
   tier: string;
+  open_weight: boolean;
   score_pct: number;
   total_cost: number | null;
   completed_at: string;

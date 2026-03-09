@@ -70,7 +70,7 @@ const tuningAbbrev: Record<string, string> = {
     <div class="results-meta">
       {datasetVersion && <span class="meta-item">Dataset <code>{datasetVersion}</code></span>}
       {evalVersion && <span class="meta-item">Eval <code>v{evalVersion}</code></span>}
-      {generatedAt && <span class="meta-item">Generated {new Date(generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>}
+      {generatedAt && <span class="meta-item">Last updated {new Date(generatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>}
     </div>
   </section>
 
@@ -95,7 +95,7 @@ const tuningAbbrev: Record<string, string> = {
             <tr class={m.rank <= 3 ? 'top-three' : ''}>
               <td class="col-rank"><span class="rank-num">{m.rank}</span></td>
               <td class="col-model">
-                <span class="model-name">{m.model_name}</span>
+                <span class="model-name">{m.model_name}{m.open_weight && <span class="ow-badge">OW</span>}</span>
                 <span class="model-provider">{m.provider}</span>
               </td>
               <td class="col-tier">
@@ -325,6 +325,22 @@ const tuningAbbrev: Record<string, string> = {
     font-weight: 500;
     color: var(--text);
     letter-spacing: 0.02em;
+  }
+
+  .ow-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--amber);
+    border: 1px solid var(--amber-dim);
+    padding: 0.1rem 0.35rem;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
   }
 
   .model-provider {

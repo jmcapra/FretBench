@@ -11,6 +11,7 @@ export interface ModelEntry {
   name: string;
   provider: string;
   tier: 'flagship' | 'mid' | 'small';
+  open_weight: boolean;
   enabled: boolean;
 }
 

@@ -144,6 +144,7 @@ interface LeaderboardEntry {
   model_name: string;
   provider: string;
   tier: string;
+  open_weight: boolean;
   score_pct: number;
   total_cost: number | null;
   completed_at: string;
@@ -188,6 +189,7 @@ export function exportResults(db: Database.Database, datasetName?: string): void
       model_name: model?.name ?? row.model_id,
       provider: model?.provider ?? 'Unknown',
       tier: model?.tier ?? 'unknown',
+      open_weight: model?.open_weight ?? false,
       score_pct: row.score_pct,
       total_cost: row.total_cost,
       completed_at: row.completed_at,
@@ -294,7 +296,8 @@ export function showModels(): void {
     console.log(chalk.dim(`  \u2500\u2500 ${tier.toUpperCase()} \u2500\u2500`));
     for (const m of tierModels) {
       const status = m.enabled ? chalk.green('\u25cf') : chalk.dim('\u25cb');
-      console.log(`  ${status} ${pad(m.name, 24)}${pad(m.provider, 12)}${chalk.dim(m.id)}`);
+      const owBadge = m.open_weight ? chalk.cyan(' OW') : '';
+      console.log(`  ${status} ${pad(m.name, 24)}${pad(m.provider, 12)}${chalk.dim(m.id)}${owBadge}`);
     }
     console.log('');
   }

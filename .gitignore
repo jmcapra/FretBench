@@ -6,3 +6,6 @@ cli/node_modules/
 cli/dist/
 /test-cases.json
 website/node_modules/
+
+# remove from gitignore once skills are cleaned up
+.claude/
