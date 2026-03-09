@@ -48,7 +48,7 @@ export function normalizeResponse(raw: string): string | null {
   cleaned = cleaned.trim();
 
   // Extract first token matching a note name: letter A-G optionally followed by # or b
-  const match = cleaned.match(/\b([A-Ga-g][#b]?)\b/);
+  const match = cleaned.match(/\b([A-Ga-g][#b]?)/);
   if (!match) return null;
 
   const note = match[1];

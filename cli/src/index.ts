@@ -5,6 +5,7 @@ import { Command } from 'commander';
 import { runModel, runMultiple, resolveModels } from './runner.js';
 import { getDb } from './db.js';
 import { showLeaderboard, showModelStats, exportResults, showModels } from './stats.js';
+import { regrade } from './regrade.js';
 
 const program = new Command();
 
@@ -72,6 +73,13 @@ program
   .description('List registered models')
   .action(() => {
     showModels();
+  });
+
+program
+  .command('regrade')
+  .description('Re-grade all completed run results using current grader logic and test cases')
+  .action(() => {
+    regrade();
   });
 
 program.parse();

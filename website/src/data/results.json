@@ -1,42 +1,41 @@
 {
-  "generated_at": "2026-03-09T15:35:12.792Z",
+  "generated_at": "2026-03-09T17:03:43.298Z",
   "eval_version": "1.0.0",
   "dataset_version": "577c513b40c4537ed1b65a3acbe49db2d73e4ca1",
   "leaderboard": [
     {
       "rank": 1,
+      "model_id": "qwen/qwen3.5-flash-02-23",
+      "model_name": "Qwen 3.5 Flash",
+      "provider": "Alibaba",
+      "tier": "mid",
+      "open_weight": true,
+      "score_pct": 94.51,
+      "total_cost": 0.1660838,
+      "completed_at": "2026-03-08T16:30:07.913Z",
+      "tuning_scores": {
+        "Drop D": 96.88,
+        "Drop Db": 89.29,
+        "Half-Step Down": 92.86,
+        "Standard": 96.97
+      }
+    },
+    {
+      "rank": 2,
       "model_id": "deepseek/deepseek-v3.2-speciale",
       "model_name": "DeepSeek V3.2 Speciale",
       "provider": "DeepSeek",
       "tier": "mid",
       "open_weight": true,
-      "score_pct": 86.26,
+      "score_pct": 94.51,
       "total_cost": 0.286342,
       "completed_at": "2026-03-09T14:12:19.561Z",
       "tuning_scores": {
-        "Drop D": 87.5,
-        "Drop Db": 82.14,
-        "Half-Step Down": 91.07,
-        "Standard": 83.33
+        "Drop D": 96.88,
+        "Drop Db": 85.71,
+        "Half-Step Down": 92.86,
+        "Standard": 98.48
       }
-    },
-    {
-      "rank": 2,
-      "model_id": "deepseek/deepseek-v3.2-speciale:reasoning=high",
-      "model_name": "DeepSeek V3.2 Speciale (Reasoning)",
-      "provider": "DeepSeek",
-      "tier": "mid",
-      "open_weight": true,
-      "score_pct": 85.71,
-      "total_cost": 0.2966268,
-      "completed_at": "2026-03-09T14:33:48.994Z",
-      "tuning_scores": {
-        "Drop D": 87.5,
-        "Drop Db": 78.57,
-        "Half-Step Down": 91.07,
-        "Standard": 83.33
-      },
-      "reasoning_effort": "high"
     },
     {
       "rank": 3,
@@ -45,169 +44,170 @@
       "provider": "Alibaba",
       "tier": "flagship",
       "open_weight": true,
-      "score_pct": 83.52,
+      "score_pct": 94.51,
       "total_cost": 0.37767392,
       "completed_at": "2026-03-08T16:34:04.682Z",
       "tuning_scores": {
-        "Drop D": 87.5,
-        "Drop Db": 78.57,
-        "Half-Step Down": 89.29,
-        "Standard": 78.79
+        "Drop D": 96.88,
+        "Drop Db": 85.71,
+        "Half-Step Down": 92.86,
+        "Standard": 98.48
       }
     },
     {
       "rank": 4,
-      "model_id": "moonshotai/kimi-k2.5",
-      "model_name": "Kimi K2.5",
-      "provider": "Moonshot",
-      "tier": "flagship",
-      "open_weight": true,
-      "score_pct": 79.67,
-      "total_cost": 0.613544628009088,
-      "completed_at": "2026-03-09T14:33:05.966Z",
-      "tuning_scores": {
-        "Drop D": 87.5,
-        "Drop Db": 75,
-        "Half-Step Down": 78.57,
-        "Standard": 78.79
-      }
-    },
-    {
-      "rank": 5,
       "model_id": "moonshotai/kimi-k2.5:reasoning=high",
       "model_name": "Kimi K2.5 (Reasoning)",
       "provider": "Moonshot",
       "tier": "flagship",
       "open_weight": true,
-      "score_pct": 78.02,
+      "score_pct": 94.51,
       "total_cost": 0.595982273007168,
       "completed_at": "2026-03-09T14:49:22.458Z",
       "tuning_scores": {
-        "Drop D": 87.5,
-        "Drop Db": 71.43,
-        "Half-Step Down": 75,
-        "Standard": 78.79
+        "Drop D": 96.88,
+        "Drop Db": 85.71,
+        "Half-Step Down": 92.86,
+        "Standard": 98.48
+      },
+      "reasoning_effort": "high"
+    },
+    {
+      "rank": 5,
+      "model_id": "deepseek/deepseek-v3.2-speciale:reasoning=high",
+      "model_name": "DeepSeek V3.2 Speciale (Reasoning)",
+      "provider": "DeepSeek",
+      "tier": "mid",
+      "open_weight": true,
+      "score_pct": 93.41,
+      "total_cost": 0.2966268,
+      "completed_at": "2026-03-09T14:33:48.994Z",
+      "tuning_scores": {
+        "Drop D": 96.88,
+        "Drop Db": 82.14,
+        "Half-Step Down": 92.86,
+        "Standard": 96.97
       },
       "reasoning_effort": "high"
     },
     {
       "rank": 6,
-      "model_id": "qwen/qwen3.5-flash-02-23",
-      "model_name": "Qwen 3.5 Flash",
-      "provider": "Alibaba",
-      "tier": "mid",
+      "model_id": "moonshotai/kimi-k2.5",
+      "model_name": "Kimi K2.5",
+      "provider": "Moonshot",
+      "tier": "flagship",
       "open_weight": true,
-      "score_pct": 77.47,
-      "total_cost": 0.1660838,
-      "completed_at": "2026-03-08T16:30:07.913Z",
+      "score_pct": 92.86,
+      "total_cost": 0.613544628009088,
+      "completed_at": "2026-03-09T14:33:05.966Z",
       "tuning_scores": {
-        "Drop D": 87.5,
-        "Drop Db": 78.57,
-        "Half-Step Down": 71.43,
-        "Standard": 77.27
+        "Drop D": 96.88,
+        "Drop Db": 85.71,
+        "Half-Step Down": 87.5,
+        "Standard": 98.48
       }
     },
     {
       "rank": 7,
-      "model_id": "openai/gpt-5.4",
-      "model_name": "GPT-5.4",
-      "provider": "OpenAI",
-      "tier": "flagship",
-      "open_weight": false,
-      "score_pct": 62.64,
-      "total_cost": 0.2423775,
-      "completed_at": "2026-03-08T15:31:53.653Z",
-      "tuning_scores": {
-        "Drop D": 71.88,
-        "Drop Db": 50,
-        "Half-Step Down": 55.36,
-        "Standard": 69.7
-      }
-    },
-    {
-      "rank": 8,
-      "model_id": "anthropic/claude-opus-4.6",
-      "model_name": "Claude Opus 4.6",
-      "provider": "Anthropic",
-      "tier": "flagship",
-      "open_weight": false,
-      "score_pct": 60.44,
-      "total_cost": 0.569535,
-      "completed_at": "2026-03-08T15:36:09.825Z",
-      "tuning_scores": {
-        "Drop D": 53.13,
-        "Drop Db": 64.29,
-        "Half-Step Down": 57.14,
-        "Standard": 65.15
-      }
-    },
-    {
-      "rank": 9,
       "model_id": "minimax/minimax-m2.5",
       "model_name": "MiniMax M2.5",
       "provider": "MiniMax",
       "tier": "flagship",
       "open_weight": true,
-      "score_pct": 59.89,
+      "score_pct": 82.97,
       "total_cost": 0.11255136,
       "completed_at": "2026-03-09T11:56:40.270Z",
       "tuning_scores": {
-        "Drop D": 65.63,
-        "Drop Db": 42.86,
-        "Half-Step Down": 48.21,
-        "Standard": 74.24
+        "Drop D": 75,
+        "Drop Db": 75,
+        "Half-Step Down": 80.36,
+        "Standard": 92.42
       }
     },
     {
-      "rank": 10,
+      "rank": 8,
       "model_id": "minimax/minimax-m2.5:reasoning=high",
       "model_name": "MiniMax M2.5 (Reasoning)",
       "provider": "MiniMax",
       "tier": "flagship",
       "open_weight": true,
-      "score_pct": 59.34,
+      "score_pct": 80.22,
       "total_cost": 0.110064735,
       "completed_at": "2026-03-09T12:03:04.593Z",
       "tuning_scores": {
-        "Drop D": 71.88,
-        "Drop Db": 46.43,
-        "Half-Step Down": 48.21,
-        "Standard": 68.18
+        "Drop D": 75,
+        "Drop Db": 71.43,
+        "Half-Step Down": 82.14,
+        "Standard": 84.85
       },
       "reasoning_effort": "high"
     },
     {
-      "rank": 11,
-      "model_id": "google/gemini-3.1-pro-preview",
-      "model_name": "Gemini 3.1 Pro",
-      "provider": "Google",
+      "rank": 9,
+      "model_id": "openai/gpt-5.4",
+      "model_name": "GPT-5.4",
+      "provider": "OpenAI",
       "tier": "flagship",
       "open_weight": false,
-      "score_pct": 43.41,
-      "total_cost": 0.317128,
-      "completed_at": "2026-03-08T15:46:10.721Z",
+      "score_pct": 74.18,
+      "total_cost": 0.2423775,
+      "completed_at": "2026-03-08T15:31:53.653Z",
       "tuning_scores": {
-        "Drop D": 53.13,
-        "Drop Db": 25,
-        "Half-Step Down": 33.93,
-        "Standard": 54.55
+        "Drop D": 81.25,
+        "Drop Db": 60.71,
+        "Half-Step Down": 58.93,
+        "Standard": 89.39
       }
     },
     {
-      "rank": 12,
+      "rank": 10,
+      "model_id": "anthropic/claude-opus-4.6",
+      "model_name": "Claude Opus 4.6",
+      "provider": "Anthropic",
+      "tier": "flagship",
+      "open_weight": false,
+      "score_pct": 68.68,
+      "total_cost": 0.569535,
+      "completed_at": "2026-03-08T15:36:09.825Z",
+      "tuning_scores": {
+        "Drop D": 59.38,
+        "Drop Db": 67.86,
+        "Half-Step Down": 58.93,
+        "Standard": 81.82
+      }
+    },
+    {
+      "rank": 11,
       "model_id": "google/gemini-3.1-flash-lite-preview",
       "model_name": "Gemini 3.1 Flash Lite",
       "provider": "Google",
       "tier": "mid",
       "open_weight": false,
-      "score_pct": 41.21,
+      "score_pct": 45.6,
       "total_cost": 0.0237965,
       "completed_at": "2026-03-08T15:52:22.794Z",
       "tuning_scores": {
-        "Drop D": 59.38,
+        "Drop D": 68.75,
         "Drop Db": 17.86,
-        "Half-Step Down": 14.29,
-        "Standard": 65.15
+        "Half-Step Down": 10.71,
+        "Standard": 75.76
+      }
+    },
+    {
+      "rank": 12,
+      "model_id": "google/gemini-3.1-pro-preview",
+      "model_name": "Gemini 3.1 Pro",
+      "provider": "Google",
+      "tier": "flagship",
+      "open_weight": false,
+      "score_pct": 45.6,
+      "total_cost": 0.317128,
+      "completed_at": "2026-03-08T15:46:10.721Z",
+      "tuning_scores": {
+        "Drop D": 56.25,
+        "Drop Db": 25,
+        "Half-Step Down": 33.93,
+        "Standard": 59.09
       }
     },
     {
@@ -217,18 +217,35 @@
       "provider": "Meta",
       "tier": "mid",
       "open_weight": true,
-      "score_pct": 30.22,
+      "score_pct": 28.02,
       "total_cost": 0.024869075,
       "completed_at": "2026-03-08T16:09:51.617Z",
       "tuning_scores": {
         "Drop D": 12.5,
-        "Drop Db": 25,
-        "Half-Step Down": 42.86,
-        "Standard": 30.3
+        "Drop Db": 28.57,
+        "Half-Step Down": 41.07,
+        "Standard": 24.24
       }
     },
     {
       "rank": 14,
+      "model_id": "mistralai/mistral-large-2512",
+      "model_name": "Mistral Large",
+      "provider": "Mistral",
+      "tier": "flagship",
+      "open_weight": true,
+      "score_pct": 26.92,
+      "total_cost": 0.048619,
+      "completed_at": "2026-03-08T15:46:43.424Z",
+      "tuning_scores": {
+        "Drop D": 34.38,
+        "Drop Db": 0,
+        "Half-Step Down": 26.79,
+        "Standard": 34.85
+      }
+    },
+    {
+      "rank": 15,
       "model_id": "anthropic/claude-sonnet-4.6",
       "model_name": "Claude Sonnet 4.6",
       "provider": "Anthropic",
@@ -238,48 +255,14 @@
       "total_cost": 0.431211,
       "completed_at": "2026-03-08T15:36:03.625Z",
       "tuning_scores": {
-        "Drop D": 18.75,
-        "Drop Db": 14.29,
+        "Drop D": 15.63,
+        "Drop Db": 7.14,
         "Half-Step Down": 19.64,
-        "Standard": 30.3
-      }
-    },
-    {
-      "rank": 15,
-      "model_id": "mistralai/mistral-large-2512",
-      "model_name": "Mistral Large",
-      "provider": "Mistral",
-      "tier": "flagship",
-      "open_weight": true,
-      "score_pct": 20.88,
-      "total_cost": 0.048619,
-      "completed_at": "2026-03-08T15:46:43.424Z",
-      "tuning_scores": {
-        "Drop D": 18.75,
-        "Drop Db": 0,
-        "Half-Step Down": 26.79,
-        "Standard": 25.76
+        "Standard": 34.85
       }
     },
     {
       "rank": 16,
-      "model_id": "anthropic/claude-haiku-4.5",
-      "model_name": "Claude Haiku 4.5",
-      "provider": "Anthropic",
-      "tier": "mid",
-      "open_weight": false,
-      "score_pct": 20.88,
-      "total_cost": 0.113645,
-      "completed_at": "2026-03-08T15:51:08.129Z",
-      "tuning_scores": {
-        "Drop D": 37.5,
-        "Drop Db": 10.71,
-        "Half-Step Down": 10.71,
-        "Standard": 25.76
-      }
-    },
-    {
-      "rank": 17,
       "model_id": "deepseek/deepseek-v3.2",
       "model_name": "DeepSeek V3.2",
       "provider": "DeepSeek",
@@ -296,104 +279,121 @@
       }
     },
     {
+      "rank": 17,
+      "model_id": "anthropic/claude-haiku-4.5",
+      "model_name": "Claude Haiku 4.5",
+      "provider": "Anthropic",
+      "tier": "mid",
+      "open_weight": false,
+      "score_pct": 19.23,
+      "total_cost": 0.113645,
+      "completed_at": "2026-03-08T15:51:08.129Z",
+      "tuning_scores": {
+        "Drop D": 31.25,
+        "Drop Db": 14.29,
+        "Half-Step Down": 7.14,
+        "Standard": 25.76
+      }
+    },
+    {
       "rank": 18,
       "model_id": "meta-llama/llama-4-scout-17b-16e-instruct",
       "model_name": "Llama 4 Scout",
       "provider": "Meta",
       "tier": "flagship",
       "open_weight": true,
-      "score_pct": 17.03,
+      "score_pct": 13.74,
       "total_cost": 0.01166967,
       "completed_at": "2026-03-08T15:48:18.536Z",
       "tuning_scores": {
         "Drop D": 9.38,
         "Drop Db": 7.14,
-        "Half-Step Down": 16.07,
-        "Standard": 25.76
+        "Half-Step Down": 12.5,
+        "Standard": 19.7
       }
     }
   ],
   "hardest_questions": [
     {
-      "test_case_id": "FB_008",
+      "test_case_id": "FB_047",
+      "tuning": "Drop D",
+      "success_rate": 5.56,
+      "total_attempts": 18
+    },
+    {
+      "test_case_id": "FB_050",
       "tuning": "Drop Db",
-      "success_rate": 0,
+      "success_rate": 5.56,
       "total_attempts": 18
     },
     {
-      "test_case_id": "FB_029",
-      "tuning": "Drop D",
-      "success_rate": 0,
-      "total_attempts": 18
-    },
-    {
-      "test_case_id": "FB_035",
-      "tuning": "Drop D",
-      "success_rate": 0,
-      "total_attempts": 18
-    },
-    {
-      "test_case_id": "FB_042",
-      "tuning": "Standard",
-      "success_rate": 0,
-      "total_attempts": 18
-    },
-    {
-      "test_case_id": "FB_045",
-      "tuning": "Standard",
-      "success_rate": 0,
-      "total_attempts": 18
-    },
-    {
-      "test_case_id": "FB_048",
-      "tuning": "Standard",
-      "success_rate": 0,
-      "total_attempts": 18
-    },
-    {
-      "test_case_id": "FB_051",
-      "tuning": "Standard",
-      "success_rate": 0,
-      "total_attempts": 18
-    },
-    {
-      "test_case_id": "FB_058",
+      "test_case_id": "FB_085",
       "tuning": "Half-Step Down",
-      "success_rate": 0,
+      "success_rate": 5.56,
       "total_attempts": 18
     },
     {
-      "test_case_id": "FB_072",
-      "tuning": "Standard",
-      "success_rate": 0,
+      "test_case_id": "FB_028",
+      "tuning": "Half-Step Down",
+      "success_rate": 11.11,
       "total_attempts": 18
     },
     {
-      "test_case_id": "FB_081",
+      "test_case_id": "FB_052",
+      "tuning": "Half-Step Down",
+      "success_rate": 11.11,
+      "total_attempts": 18
+    },
+    {
+      "test_case_id": "FB_080",
+      "tuning": "Drop Db",
+      "success_rate": 11.11,
+      "total_attempts": 18
+    },
+    {
+      "test_case_id": "FB_049",
+      "tuning": "Half-Step Down",
+      "success_rate": 16.67,
+      "total_attempts": 18
+    },
+    {
+      "test_case_id": "FB_044",
+      "tuning": "Drop Db",
+      "success_rate": 22.22,
+      "total_attempts": 18
+    },
+    {
+      "test_case_id": "FB_062",
+      "tuning": "Drop Db",
+      "success_rate": 22.22,
+      "total_attempts": 18
+    },
+    {
+      "test_case_id": "FB_148",
       "tuning": "Standard",
-      "success_rate": 0,
+      "success_rate": 33.33,
       "total_attempts": 18
     }
   ],
   "tuning_difficulty": [
     {
       "tuning": "Drop Db",
-      "avg_score_pct": 43.45,
+      "avg_score_pct": 50.2,
       "total_runs": 18
     },
     {
       "tuning": "Half-Step Down",
-      "avg_score_pct": 49.01,
+      "avg_score_pct": 55.36,
       "total_runs": 18
     },
     {
       "tuning": "Drop D",
-      "avg_score_pct": 57.47,
+      "avg_score_pct": 63.2,
       "total_runs": 18
     },
     {
       "tuning": "Standard",
-      "avg_score_pct": 57.58,
+      "avg_score_pct": 68.43,
       "total_runs": 18
     }
   ],
