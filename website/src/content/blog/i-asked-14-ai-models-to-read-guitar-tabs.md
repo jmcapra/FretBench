@@ -5,6 +5,8 @@ pubDate: 'Mar 9 2026'
 heroImage: '../../assets/blog-leaderboard-full.png'
 ---
 
+> **Correction (Mar 10, 2026):** A grading bug in the eval pipeline silently dropped sharp notes from extracted answers, significantly undercounting scores for most models. Two test cases also had incorrect answers. The corrected results tell a very different story — [read the updated analysis](/blog/corrected-results-open-weight-models-dominate-fretbench/).
+
 I was messing around with Gemini the other day, asking it to help me with some guitar stuff. Tab analysis, fretboard questions, that kind of thing. And it was *terrible*. Not "sort of wrong" — confidently, consistently wrong about basic fretboard mechanics.
 
 So I got curious. Is this a Gemini thing, or an LLM thing?
