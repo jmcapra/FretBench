@@ -1,8 +1,13 @@
 import OpenAI from 'openai';
 
+export interface ReasoningConfig {
+  effort: string;
+  exclude?: boolean;
+}
+
 export interface PromptConfig {
   temperature?: number;
-  maxTokens?: number;
+  reasoning?: ReasoningConfig;
 }
 
 export interface PromptResult {
@@ -11,6 +16,7 @@ export interface PromptResult {
   completionTokens: number;
   cost: number | null;
   latencyMs: number;
+  reasoningContent: string | null;
 }
 
 interface ModelPricing {
@@ -50,7 +56,7 @@ export async function sendPrompt(
   userPrompt: string,
   config: PromptConfig = {}
 ): Promise<PromptResult> {
-  const { temperature = 0, maxTokens = 64 } = config;
+  const { temperature = 0, reasoning } = config;
   const api = getClient();
 
   const maxRetries = 5;
@@ -62,23 +68,41 @@ export async function sendPrompt(
     const start = Date.now();
 
     try {
-      const response = await api.chat.completions.create({
+      const requestBody: Record<string, unknown> = {
         model: modelId,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt },
         ],
         temperature,
-        max_tokens: maxTokens,
-      });
+      };
+
+      if (reasoning) {
+        requestBody.reasoning = {
+          effort: reasoning.effort,
+          ...(reasoning.exclude != null ? { exclude: reasoning.exclude } : {}),
+        };
+      }
+
+      const response = await (api.chat.completions.create as Function)(requestBody);
 
       const latencyMs = Date.now() - start;
       const choice = response.choices?.[0];
-      const content = choice?.message?.content?.trim() ?? '';
+      const message = choice?.message as Record<string, unknown> | undefined;
+      const content = (typeof message?.content === 'string' ? message.content.trim() : '') as string;
       const usage = response.usage;
 
       const promptTokens = usage?.prompt_tokens ?? 0;
       const completionTokens = usage?.completion_tokens ?? 0;
+
+      // Extract reasoning content if present
+      let reasoningContent: string | null = null;
+      if (message) {
+        const rc = message['reasoning_content'] ?? message['reasoning'];
+        if (typeof rc === 'string' && rc.length > 0) {
+          reasoningContent = rc;
+        }
+      }
 
       // Try to get cost from OpenRouter's extended fields
       let cost: number | null = null;
@@ -92,7 +116,7 @@ export async function sendPrompt(
         }
       }
 
-      return { content, promptTokens, completionTokens, cost, latencyMs };
+      return { content, promptTokens, completionTokens, cost, latencyMs, reasoningContent };
     } catch (err: unknown) {
       const isRateLimit =
         err instanceof OpenAI.APIError && err.status === 429;

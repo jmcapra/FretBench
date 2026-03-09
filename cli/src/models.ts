@@ -8,11 +8,17 @@ const MODELS_PATH = resolve(__dirname, '../models.yaml');
 
 export interface ModelEntry {
   id: string;
+  api_model_id?: string;
   name: string;
   provider: string;
   tier: 'flagship' | 'mid' | 'small';
   open_weight: boolean;
   enabled: boolean;
+  reasoning_effort?: 'high' | 'medium' | 'low';
+}
+
+export function getApiModelId(model: ModelEntry): string {
+  return model.api_model_id ?? model.id;
 }
 
 interface ModelsFile {

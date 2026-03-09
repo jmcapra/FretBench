@@ -1,10 +1,45 @@
 {
-  "generated_at": "2026-03-08T17:19:48.323Z",
+  "generated_at": "2026-03-09T15:35:12.792Z",
   "eval_version": "1.0.0",
   "dataset_version": "577c513b40c4537ed1b65a3acbe49db2d73e4ca1",
   "leaderboard": [
     {
       "rank": 1,
+      "model_id": "deepseek/deepseek-v3.2-speciale",
+      "model_name": "DeepSeek V3.2 Speciale",
+      "provider": "DeepSeek",
+      "tier": "mid",
+      "open_weight": true,
+      "score_pct": 86.26,
+      "total_cost": 0.286342,
+      "completed_at": "2026-03-09T14:12:19.561Z",
+      "tuning_scores": {
+        "Drop D": 87.5,
+        "Drop Db": 82.14,
+        "Half-Step Down": 91.07,
+        "Standard": 83.33
+      }
+    },
+    {
+      "rank": 2,
+      "model_id": "deepseek/deepseek-v3.2-speciale:reasoning=high",
+      "model_name": "DeepSeek V3.2 Speciale (Reasoning)",
+      "provider": "DeepSeek",
+      "tier": "mid",
+      "open_weight": true,
+      "score_pct": 85.71,
+      "total_cost": 0.2966268,
+      "completed_at": "2026-03-09T14:33:48.994Z",
+      "tuning_scores": {
+        "Drop D": 87.5,
+        "Drop Db": 78.57,
+        "Half-Step Down": 91.07,
+        "Standard": 83.33
+      },
+      "reasoning_effort": "high"
+    },
+    {
+      "rank": 3,
       "model_id": "qwen/qwen3.5-plus-02-15",
       "model_name": "Qwen 3.5 Plus",
       "provider": "Alibaba",
@@ -21,7 +56,42 @@
       }
     },
     {
-      "rank": 2,
+      "rank": 4,
+      "model_id": "moonshotai/kimi-k2.5",
+      "model_name": "Kimi K2.5",
+      "provider": "Moonshot",
+      "tier": "flagship",
+      "open_weight": true,
+      "score_pct": 79.67,
+      "total_cost": 0.613544628009088,
+      "completed_at": "2026-03-09T14:33:05.966Z",
+      "tuning_scores": {
+        "Drop D": 87.5,
+        "Drop Db": 75,
+        "Half-Step Down": 78.57,
+        "Standard": 78.79
+      }
+    },
+    {
+      "rank": 5,
+      "model_id": "moonshotai/kimi-k2.5:reasoning=high",
+      "model_name": "Kimi K2.5 (Reasoning)",
+      "provider": "Moonshot",
+      "tier": "flagship",
+      "open_weight": true,
+      "score_pct": 78.02,
+      "total_cost": 0.595982273007168,
+      "completed_at": "2026-03-09T14:49:22.458Z",
+      "tuning_scores": {
+        "Drop D": 87.5,
+        "Drop Db": 71.43,
+        "Half-Step Down": 75,
+        "Standard": 78.79
+      },
+      "reasoning_effort": "high"
+    },
+    {
+      "rank": 6,
       "model_id": "qwen/qwen3.5-flash-02-23",
       "model_name": "Qwen 3.5 Flash",
       "provider": "Alibaba",
@@ -38,7 +108,7 @@
       }
     },
     {
-      "rank": 3,
+      "rank": 7,
       "model_id": "openai/gpt-5.4",
       "model_name": "GPT-5.4",
       "provider": "OpenAI",
@@ -55,7 +125,7 @@
       }
     },
     {
-      "rank": 4,
+      "rank": 8,
       "model_id": "anthropic/claude-opus-4.6",
       "model_name": "Claude Opus 4.6",
       "provider": "Anthropic",
@@ -72,7 +142,42 @@
       }
     },
     {
-      "rank": 5,
+      "rank": 9,
+      "model_id": "minimax/minimax-m2.5",
+      "model_name": "MiniMax M2.5",
+      "provider": "MiniMax",
+      "tier": "flagship",
+      "open_weight": true,
+      "score_pct": 59.89,
+      "total_cost": 0.11255136,
+      "completed_at": "2026-03-09T11:56:40.270Z",
+      "tuning_scores": {
+        "Drop D": 65.63,
+        "Drop Db": 42.86,
+        "Half-Step Down": 48.21,
+        "Standard": 74.24
+      }
+    },
+    {
+      "rank": 10,
+      "model_id": "minimax/minimax-m2.5:reasoning=high",
+      "model_name": "MiniMax M2.5 (Reasoning)",
+      "provider": "MiniMax",
+      "tier": "flagship",
+      "open_weight": true,
+      "score_pct": 59.34,
+      "total_cost": 0.110064735,
+      "completed_at": "2026-03-09T12:03:04.593Z",
+      "tuning_scores": {
+        "Drop D": 71.88,
+        "Drop Db": 46.43,
+        "Half-Step Down": 48.21,
+        "Standard": 68.18
+      },
+      "reasoning_effort": "high"
+    },
+    {
+      "rank": 11,
       "model_id": "google/gemini-3.1-pro-preview",
       "model_name": "Gemini 3.1 Pro",
       "provider": "Google",
@@ -89,7 +194,7 @@
       }
     },
     {
-      "rank": 6,
+      "rank": 12,
       "model_id": "google/gemini-3.1-flash-lite-preview",
       "model_name": "Gemini 3.1 Flash Lite",
       "provider": "Google",
@@ -106,7 +211,7 @@
       }
     },
     {
-      "rank": 7,
+      "rank": 13,
       "model_id": "meta-llama/llama-3.3-70b-instruct",
       "model_name": "Llama 3.3 70B",
       "provider": "Meta",
@@ -123,7 +228,7 @@
       }
     },
     {
-      "rank": 8,
+      "rank": 14,
       "model_id": "anthropic/claude-sonnet-4.6",
       "model_name": "Claude Sonnet 4.6",
       "provider": "Anthropic",
@@ -140,7 +245,7 @@
       }
     },
     {
-      "rank": 9,
+      "rank": 15,
       "model_id": "mistralai/mistral-large-2512",
       "model_name": "Mistral Large",
       "provider": "Mistral",
@@ -157,7 +262,7 @@
       }
     },
     {
-      "rank": 10,
+      "rank": 16,
       "model_id": "anthropic/claude-haiku-4.5",
       "model_name": "Claude Haiku 4.5",
       "provider": "Anthropic",
@@ -174,7 +279,7 @@
       }
     },
     {
-      "rank": 11,
+      "rank": 17,
       "model_id": "deepseek/deepseek-v3.2",
       "model_name": "DeepSeek V3.2",
       "provider": "DeepSeek",
@@ -191,7 +296,7 @@
       }
     },
     {
-      "rank": 12,
+      "rank": 18,
       "model_id": "meta-llama/llama-4-scout-17b-16e-instruct",
       "model_name": "Llama 4 Scout",
       "provider": "Meta",
@@ -206,57 +311,6 @@
         "Half-Step Down": 16.07,
         "Standard": 25.76
       }
-    },
-    {
-      "rank": 13,
-      "model_id": "moonshotai/kimi-k2.5",
-      "model_name": "Kimi K2.5",
-      "provider": "Moonshot",
-      "tier": "flagship",
-      "open_weight": true,
-      "score_pct": 9.34,
-      "total_cost": 0.125344212010752,
-      "completed_at": "2026-03-08T17:14:57.032Z",
-      "tuning_scores": {
-        "Drop D": 12.5,
-        "Drop Db": 14.29,
-        "Half-Step Down": 7.14,
-        "Standard": 7.58
-      }
-    },
-    {
-      "rank": 14,
-      "model_id": "minimax/minimax-m2.5",
-      "model_name": "MiniMax M2.5",
-      "provider": "MiniMax",
-      "tier": "flagship",
-      "open_weight": true,
-      "score_pct": 5.49,
-      "total_cost": 0.09162006,
-      "completed_at": "2026-03-08T17:07:59.284Z",
-      "tuning_scores": {
-        "Drop D": 3.13,
-        "Drop Db": 3.57,
-        "Half-Step Down": 3.57,
-        "Standard": 9.09
-      }
-    },
-    {
-      "rank": 15,
-      "model_id": "deepseek/deepseek-v3.2-speciale",
-      "model_name": "DeepSeek V3.2 Speciale",
-      "provider": "DeepSeek",
-      "tier": "mid",
-      "open_weight": true,
-      "score_pct": 0,
-      "total_cost": 0.037528,
-      "completed_at": "2026-03-08T16:05:46.234Z",
-      "tuning_scores": {
-        "Drop D": 0,
-        "Drop Db": 0,
-        "Half-Step Down": 0,
-        "Standard": 0
-      }
     }
   ],
   "hardest_questions": [
@@ -264,83 +318,83 @@
       "test_case_id": "FB_008",
       "tuning": "Drop Db",
       "success_rate": 0,
-      "total_attempts": 15
+      "total_attempts": 18
     },
     {
       "test_case_id": "FB_029",
       "tuning": "Drop D",
       "success_rate": 0,
-      "total_attempts": 15
+      "total_attempts": 18
     },
     {
       "test_case_id": "FB_035",
       "tuning": "Drop D",
       "success_rate": 0,
-      "total_attempts": 15
+      "total_attempts": 18
     },
     {
       "test_case_id": "FB_042",
       "tuning": "Standard",
       "success_rate": 0,
-      "total_attempts": 15
+      "total_attempts": 18
     },
     {
       "test_case_id": "FB_045",
       "tuning": "Standard",
       "success_rate": 0,
-      "total_attempts": 15
+      "total_attempts": 18
     },
     {
       "test_case_id": "FB_048",
       "tuning": "Standard",
       "success_rate": 0,
-      "total_attempts": 15
+      "total_attempts": 18
     },
     {
       "test_case_id": "FB_051",
       "tuning": "Standard",
       "success_rate": 0,
-      "total_attempts": 15
+      "total_attempts": 18
     },
     {
       "test_case_id": "FB_058",
       "tuning": "Half-Step Down",
       "success_rate": 0,
-      "total_attempts": 15
+      "total_attempts": 18
     },
     {
       "test_case_id": "FB_072",
       "tuning": "Standard",
       "success_rate": 0,
-      "total_attempts": 15
+      "total_attempts": 18
     },
     {
       "test_case_id": "FB_081",
       "tuning": "Standard",
       "success_rate": 0,
-      "total_attempts": 15
+      "total_attempts": 18
     }
   ],
   "tuning_difficulty": [
     {
       "tuning": "Drop Db",
-      "avg_score_pct": 26.91,
-      "total_runs": 15
+      "avg_score_pct": 43.45,
+      "total_runs": 18
     },
     {
       "tuning": "Half-Step Down",
-      "avg_score_pct": 30.71,
-      "total_runs": 15
+      "avg_score_pct": 49.01,
+      "total_runs": 18
     },
     {
       "tuning": "Drop D",
-      "avg_score_pct": 37.5,
-      "total_runs": 15
+      "avg_score_pct": 57.47,
+      "total_runs": 18
     },
     {
       "tuning": "Standard",
-      "avg_score_pct": 39.09,
-      "total_runs": 15
+      "avg_score_pct": 57.58,
+      "total_runs": 18
     }
   ],
   "dataset_stats": {

@@ -34,10 +34,9 @@ C → C#/Db → D → D#/Eb → E → F → F#/Gb → G → G#/Ab → A → A#/B
 4. Respond with ONLY the note name (e.g., \`F#\`). No explanation, no other text.`;
 
 export const CURRENT_EVAL_CONFIG = {
-  version: '1.0.0',
+  version: '2.0.0',
   grading_logic: 'v1: normalize → extract /^[A-Ga-g][#b]?$/ → case-insensitive match + enharmonic (unless strict_spelling)',
   temperature: 0,
-  max_tokens: 64,
 } as const;
 
 export function computePromptHash(prompt: string): string {
@@ -58,7 +57,7 @@ export function resolveEvalVersion(db: Database.Database): number {
     system_prompt_hash: currentHash,
     grading_logic: CURRENT_EVAL_CONFIG.grading_logic,
     temperature: CURRENT_EVAL_CONFIG.temperature,
-    max_tokens: CURRENT_EVAL_CONFIG.max_tokens,
+    max_tokens: 0,
     notes: latest ? 'Auto-created: system prompt hash changed' : 'Initial eval version',
     created_at: new Date().toISOString(),
   });

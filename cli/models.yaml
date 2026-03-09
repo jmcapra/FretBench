@@ -77,11 +77,29 @@ models:
     open_weight: true
     enabled: true
 
+  - id: minimax/minimax-m2.5:reasoning=high
+    api_model_id: minimax/minimax-m2.5
+    name: MiniMax M2.5 (Reasoning)
+    provider: MiniMax
+    tier: flagship
+    open_weight: true
+    reasoning_effort: high
+    enabled: true
+
   - id: moonshotai/kimi-k2.5
     name: Kimi K2.5
     provider: Moonshot
     tier: flagship
     open_weight: true
+    enabled: true
+
+  - id: moonshotai/kimi-k2.5:reasoning=high
+    api_model_id: moonshotai/kimi-k2.5
+    name: Kimi K2.5 (Reasoning)
+    provider: Moonshot
+    tier: flagship
+    open_weight: true
+    reasoning_effort: high
     enabled: true
 
   # === Tier 2: Mid-range / Cost-efficient ===
@@ -111,6 +129,15 @@ models:
     provider: DeepSeek
     tier: mid
     open_weight: true
+    enabled: true
+
+  - id: deepseek/deepseek-v3.2-speciale:reasoning=high
+    api_model_id: deepseek/deepseek-v3.2-speciale
+    name: DeepSeek V3.2 Speciale (Reasoning)
+    provider: DeepSeek
+    tier: mid
+    open_weight: true
+    reasoning_effort: high
     enabled: true
 
   - id: meta-llama/llama-3.3-70b-instruct

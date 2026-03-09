@@ -9,7 +9,7 @@ import { getDb, insertRun, updateRunStatus, insertRunResult, getRunSummary, getR
 import { CURRENT_SYSTEM_PROMPT, CURRENT_EVAL_CONFIG, resolveEvalVersion } from './eval-version.js';
 import { sendPrompt } from './openrouter.js';
 import { estimateRunCost, formatCostEstimate } from './cost.js';
-import { getModel, getEnabledModels, getModelsByTier, type ModelEntry } from './models.js';
+import { getModel, getApiModelId, getEnabledModels, getModelsByTier, type ModelEntry } from './models.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_TEST_CASES_PATH = resolve(__dirname, '../../test-cases.json');
@@ -74,12 +74,15 @@ export async function runModel(
   const evalVersionId = resolveEvalVersion(db);
   const datasetVersion = getDatasetVersion(options.datasetPath);
 
+  const apiModelId = getApiModelId(model);
+
   const runId = insertRun(db, {
     model_id: modelId,
     eval_version_id: evalVersionId,
     dataset_name: datasetName,
     dataset_version: datasetVersion,
     started_at: new Date().toISOString(),
+    reasoning_effort: model.reasoning_effort ?? null,
   });
 
   console.log(chalk.bold(`\nRunning ${model.name}`) + chalk.dim(` (${modelId})`));
@@ -93,9 +96,9 @@ export async function runModel(
     const index = `[${(i + 1).toString().padStart(String(testCases.length).length, ' ')}/${testCases.length}]`;
 
     try {
-      const result = await sendPrompt(modelId, CURRENT_SYSTEM_PROMPT, userPrompt, {
+      const result = await sendPrompt(apiModelId, CURRENT_SYSTEM_PROMPT, userPrompt, {
         temperature: CURRENT_EVAL_CONFIG.temperature,
-        maxTokens: CURRENT_EVAL_CONFIG.max_tokens,
+        ...(model.reasoning_effort ? { reasoning: { effort: model.reasoning_effort } } : {}),
       });
 
       const gradeResult = grade(result.content, tc);
@@ -116,6 +119,7 @@ export async function runModel(
         cost: result.cost,
         latency_ms: result.latencyMs,
         error: null,
+        reasoning_content: result.reasoningContent,
       });
 
       const mark = gradeResult.correct ? chalk.green('\u2713') : chalk.red('\u2717');
@@ -139,6 +143,7 @@ export async function runModel(
         cost: null,
         latency_ms: null,
         error: errorMsg,
+        reasoning_content: null,
       });
 
       console.log(`${index} ${tc.id} ${chalk.red('\u2717 ERROR:')} ${errorMsg}`);

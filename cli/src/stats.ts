@@ -149,6 +149,7 @@ interface LeaderboardEntry {
   total_cost: number | null;
   completed_at: string;
   tuning_scores: Record<string, number>;
+  reasoning_effort?: string;
 }
 
 interface HardestQuestion {
@@ -194,6 +195,7 @@ export function exportResults(db: Database.Database, datasetName?: string): void
       total_cost: row.total_cost,
       completed_at: row.completed_at,
       tuning_scores: tuningScores,
+      ...(model?.reasoning_effort ? { reasoning_effort: model.reasoning_effort } : {}),
     };
   });
 
@@ -297,7 +299,8 @@ export function showModels(): void {
     for (const m of tierModels) {
       const status = m.enabled ? chalk.green('\u25cf') : chalk.dim('\u25cb');
       const owBadge = m.open_weight ? chalk.cyan(' OW') : '';
-      console.log(`  ${status} ${pad(m.name, 24)}${pad(m.provider, 12)}${chalk.dim(m.id)}${owBadge}`);
+      const reasoningBadge = m.reasoning_effort ? chalk.magenta(` R:${m.reasoning_effort}`) : '';
+      console.log(`  ${status} ${pad(m.name, 24)}${pad(m.provider, 12)}${chalk.dim(m.id)}${owBadge}${reasoningBadge}`);
     }
     console.log('');
   }

@@ -22,12 +22,6 @@ const datasetVersion = (resultsData as any).dataset_version ?? null;
 const datasetStats = (resultsData as any).dataset_stats ?? { total_cases: 182, tuning_counts: {} };
 const tuningCounts: [string, number][] = Object.entries(datasetStats.tuning_counts ?? {});
 
-const tierColors: Record<string, string> = {
-  flagship: 'var(--amber)',
-  mid: 'var(--text-muted)',
-  small: 'var(--text-dim)',
-};
-
 const tuningAbbrev: Record<string, string> = {
   'Standard': 'Std',
   'Drop D': 'DropD',
@@ -74,6 +68,13 @@ const tuningAbbrev: Record<string, string> = {
     </div>
   </section>
 
+  <!-- Chart.js Bar Chart -->
+  <section class="section chart-section">
+    <div class="chart-container">
+      <canvas id="scoreChart"></canvas>
+    </div>
+  </section>
+
   <!-- Full Leaderboard -->
   <section class="section">
     <h2 class="section-heading">Leaderboard</h2>
@@ -83,39 +84,48 @@ const tuningAbbrev: Record<string, string> = {
           <tr>
             <th class="col-rank">#</th>
             <th class="col-model">Model</th>
-            <th class="col-tier">Tier</th>
             <th class="col-score">Score</th>
+            <th class="col-bar"></th>
             <th class="col-tuning">Tuning Breakdown</th>
             <th class="col-cost">Cost</th>
             <th class="col-date">Last Tested</th>
           </tr>
         </thead>
         <tbody>
-          {leaderboard.map((m) => (
-            <tr class={m.rank <= 3 ? 'top-three' : ''}>
-              <td class="col-rank"><span class="rank-num">{m.rank}</span></td>
-              <td class="col-model">
-                <span class="model-name">{m.model_name}{m.open_weight && <span class="ow-badge">OW</span>}</span>
-                <span class="model-provider">{m.provider}</span>
-              </td>
-              <td class="col-tier">
-                <span class="tier-badge" style={`border-color: ${tierColors[m.tier] ?? 'var(--text-dim)'}`}>{m.tier}</span>
-              </td>
-              <td class="col-score"><span class="score-val">{m.score_pct.toFixed(1)}%</span></td>
-              <td class="col-tuning">
-                <div class="tuning-stats">
-                  {Object.entries(tuningAbbrev).map(([full, abbr]) => (
-                    <span class="tuning-stat">
-                      <span class="tuning-label">{abbr}</span>
-                      <span class="tuning-val">{m.tuning_scores[full] != null ? `${m.tuning_scores[full].toFixed(0)}%` : '—'}</span>
-                    </span>
-                  ))}
-                </div>
-              </td>
-              <td class="col-cost">{m.total_cost != null ? `$${m.total_cost.toFixed(3)}` : '—'}</td>
-              <td class="col-date">{m.completed_at ? new Date(m.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
-            </tr>
-          ))}
+          {leaderboard.map((m) => {
+            const pct = m.score_pct;
+            const hue = pct >= 70 ? 36 : pct >= 40 ? 30 : 15;
+            const sat = pct >= 70 ? '80%' : pct >= 40 ? '55%' : '40%';
+            const light = pct >= 70 ? '50%' : pct >= 40 ? '40%' : '32%';
+            const barColor = `hsl(${hue}, ${sat}, ${light})`;
+            return (
+              <tr class={m.rank <= 3 ? 'top-three' : ''}>
+                <td class="col-rank"><span class="rank-num">{m.rank}</span></td>
+                <td class="col-model">
+                  <span class="model-name">{m.model_name}{m.open_weight && <span class="ow-badge">OW</span>}</span>
+                  <span class="model-provider">{m.provider}</span>
+                </td>
+                <td class="col-score"><span class="score-val">{pct.toFixed(1)}%</span></td>
+                <td class="col-bar">
+                  <div class="inline-bar-track">
+                    <div class="inline-bar-fill" style={`width: ${pct}%; background: ${barColor};`} />
+                  </div>
+                </td>
+                <td class="col-tuning">
+                  <div class="tuning-stats">
+                    {Object.entries(tuningAbbrev).map(([full, abbr]) => (
+                      <span class="tuning-stat">
+                        <span class="tuning-label">{abbr}</span>
+                        <span class="tuning-val">{m.tuning_scores[full] != null ? `${m.tuning_scores[full].toFixed(0)}%` : '—'}</span>
+                      </span>
+                    ))}
+                  </div>
+                </td>
+                <td class="col-cost">{m.total_cost != null ? `$${m.total_cost.toFixed(3)}` : '—'}</td>
+                <td class="col-date">{m.completed_at ? new Date(m.completed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -129,8 +139,13 @@ const tuningAbbrev: Record<string, string> = {
       {tuningDiff.map((t) => (
         <div class="tuning-card">
           <span class="tuning-card-name">{t.tuning}</span>
-          <span class="tuning-card-score">{t.avg_score_pct.toFixed(1)}%</span>
-          <span class="tuning-card-runs">{t.total_runs} run{t.total_runs !== 1 ? 's' : ''}</span>
+          <div class="tuning-card-bar-wrap">
+            <div class="tuning-card-bar" style={`width: ${t.avg_score_pct}%;`} />
+          </div>
+          <div class="tuning-card-footer">
+            <span class="tuning-card-score">{t.avg_score_pct.toFixed(1)}%</span>
+            <span class="tuning-card-runs">{t.total_runs} run{t.total_runs !== 1 ? 's' : ''}</span>
+          </div>
         </div>
       ))}
     </div>
@@ -193,13 +208,103 @@ const tuningAbbrev: Record<string, string> = {
   <p class="footer-note">Open source &middot; MIT license</p>
 </footer>
 
+<script define:vars={{ leaderboard }}>
+  window.__CHART_DATA__ = leaderboard;
+</script>
+
+<script>
+  import { Chart, registerables } from 'chart.js';
+  Chart.register(...registerables);
+
+  const data = (window as any).__CHART_DATA__;
+  if (data && data.length > 0) {
+    const labels = data.map((m: any) => m.model_name);
+    const scores = data.map((m: any) => m.score_pct);
+
+    const barColors = scores.map((s: number) => {
+      if (s >= 70) return 'hsl(36, 80%, 50%)';
+      if (s >= 40) return 'hsl(30, 55%, 40%)';
+      return 'hsl(15, 40%, 32%)';
+    });
+
+    const ctx = document.getElementById('scoreChart') as HTMLCanvasElement;
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          data: scores,
+          backgroundColor: barColors,
+          borderColor: barColors.map((c: string) => c.replace('50%)', '60%)').replace('40%)', '50%)').replace('32%)', '42%)')),
+          borderWidth: 1,
+          borderRadius: 4,
+          maxBarThickness: 56,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#181510',
+            borderColor: '#332E25',
+            borderWidth: 1,
+            titleColor: '#EDE7DA',
+            bodyColor: '#C4B89E',
+            titleFont: { family: "'Courier Prime', monospace", size: 13, weight: 'bold' },
+            bodyFont: { family: "'Courier Prime', monospace", size: 12 },
+            padding: 12,
+            cornerRadius: 4,
+            callbacks: {
+              label: (ctx: any) => `Score: ${ctx.parsed.y.toFixed(1)}%`,
+              afterLabel: (ctx: any) => {
+                const m = data[ctx.dataIndex];
+                return `Provider: ${m.provider}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: '#C4B89E',
+              font: { family: "'Courier Prime', monospace", size: 10 },
+              maxRotation: 45,
+              minRotation: 25,
+            },
+            grid: { display: false },
+            border: { color: '#332E25' }
+          },
+          y: {
+            min: 0,
+            max: 100,
+            ticks: {
+              color: '#7A6E58',
+              font: { family: "'Courier Prime', monospace", size: 11 },
+              callback: (v: any) => v + '%',
+              stepSize: 20,
+            },
+            grid: { color: 'rgba(51, 46, 37, 0.5)' },
+            border: { display: false }
+          }
+        },
+        animation: {
+          duration: 800,
+          easing: 'easeOutQuart'
+        }
+      }
+    });
+  }
+</script>
+
 <style>
   main {
     flex: 1;
     width: 100%;
-    max-width: 960px;
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 4rem 2rem;
+    padding: 4rem 2.5rem;
   }
 
   .empty-main {
@@ -267,6 +372,21 @@ const tuningAbbrev: Record<string, string> = {
     margin-bottom: 1.5rem;
   }
 
+  /* ─── Chart.js container ─── */
+  .chart-section {
+    padding: 1rem 0 2rem;
+  }
+
+  .chart-container {
+    position: relative;
+    width: 100%;
+    height: 340px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.5rem 1.5rem 1rem;
+  }
+
   /* ─── Tables ─── */
   .table-wrap {
     overflow-x: auto;
@@ -316,7 +436,7 @@ const tuningAbbrev: Record<string, string> = {
     color: var(--amber);
   }
 
-  .col-model { min-width: 140px; }
+  .col-model { min-width: 160px; }
 
   .model-name {
     display: block;
@@ -351,29 +471,34 @@ const tuningAbbrev: Record<string, string> = {
     color: var(--text-dim);
   }
 
-  .col-tier { white-space: nowrap; }
-
-  .tier-badge {
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    border: 1px solid;
-    padding: 0.15rem 0.5rem;
-  }
-
   .col-score { white-space: nowrap; }
 
   .score-val {
     font-family: var(--font-mono);
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--amber);
     letter-spacing: 0.02em;
   }
 
-  .col-tuning { min-width: 200px; }
+  /* ─── Inline bar in table ─── */
+  .col-bar { min-width: 120px; width: 180px; padding-right: 1rem !important; }
+
+  .inline-bar-track {
+    width: 100%;
+    height: 10px;
+    background: rgba(90, 80, 64, 0.15);
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .inline-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width 0.5s ease;
+  }
+
+  .col-tuning { min-width: 220px; }
 
   .tuning-stats {
     display: flex;
@@ -416,7 +541,7 @@ const tuningAbbrev: Record<string, string> = {
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
   }
 
   .tuning-card-name {
@@ -427,9 +552,29 @@ const tuningAbbrev: Record<string, string> = {
     letter-spacing: 0.04em;
   }
 
+  .tuning-card-bar-wrap {
+    width: 100%;
+    height: 8px;
+    background: rgba(90, 80, 64, 0.18);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .tuning-card-bar {
+    height: 100%;
+    background: var(--amber);
+    border-radius: 4px;
+  }
+
+  .tuning-card-footer {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
   .tuning-card-score {
     font-family: var(--font-mono);
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     font-weight: 700;
     color: var(--amber);
   }
@@ -481,14 +626,15 @@ const tuningAbbrev: Record<string, string> = {
   @media (max-width: 820px) {
     main { padding: 2.5rem 1.5rem; }
     .tuning-cards { grid-template-columns: repeat(2, 1fr); }
-    .col-tuning, .col-cost, .col-tier { display: none; }
+    .col-tuning, .col-cost { display: none; }
     .results-table thead .col-tuning,
-    .results-table thead .col-cost,
-    .results-table thead .col-tier { display: none; }
+    .results-table thead .col-cost { display: none; }
+    .chart-container { height: 260px; padding: 1rem; }
   }
 
   @media (max-width: 480px) {
     .tuning-cards { grid-template-columns: 1fr; }
+    .chart-container { height: 220px; }
   }
 </style>
 

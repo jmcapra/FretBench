@@ -112,6 +112,20 @@ function migrate(db: Database.Database): void {
       PRAGMA user_version = 2;
     `);
   }
+
+  if (version < 3) {
+    db.exec(`
+      ALTER TABLE run_results ADD COLUMN reasoning_content TEXT;
+      ALTER TABLE runs ADD COLUMN reasoning_effort TEXT;
+
+      -- Invalidate broken runs from reasoning models that were truncated by max_tokens: 64
+      UPDATE runs SET status = 'invalidated'
+      WHERE model_id IN ('deepseek/deepseek-v3.2-speciale', 'moonshotai/kimi-k2.5', 'minimax/minimax-m2.5')
+      AND status = 'completed';
+
+      PRAGMA user_version = 3;
+    `);
+  }
 }
 
 // --- Query helpers ---
@@ -153,6 +167,7 @@ export interface RunRow {
   started_at: string;
   completed_at: string | null;
   status: string;
+  reasoning_effort: string | null;
 }
 
 export function insertRun(
@@ -160,8 +175,8 @@ export function insertRun(
   row: Omit<RunRow, 'id' | 'completed_at' | 'status'>
 ): number {
   const stmt = db.prepare(`
-    INSERT INTO runs (model_id, eval_version_id, dataset_name, dataset_version, started_at)
-    VALUES (@model_id, @eval_version_id, @dataset_name, @dataset_version, @started_at)
+    INSERT INTO runs (model_id, eval_version_id, dataset_name, dataset_version, started_at, reasoning_effort)
+    VALUES (@model_id, @eval_version_id, @dataset_name, @dataset_version, @started_at, @reasoning_effort)
   `);
   const result = stmt.run(row);
   return result.lastInsertRowid as number;
@@ -170,7 +185,7 @@ export function insertRun(
 export function updateRunStatus(
   db: Database.Database,
   runId: number,
-  status: 'completed' | 'failed',
+  status: 'completed' | 'failed' | 'invalidated',
   completedAt: string
 ): void {
   db.prepare('UPDATE runs SET status = ?, completed_at = ? WHERE id = ?')
@@ -192,6 +207,7 @@ export interface RunResultRow {
   cost: number | null;
   latency_ms: number | null;
   error: string | null;
+  reasoning_content: string | null;
 }
 
 export function insertRunResult(
@@ -199,8 +215,8 @@ export function insertRunResult(
   row: RunResultRow
 ): number {
   const stmt = db.prepare(`
-    INSERT INTO run_results (run_id, test_case_id, tuning, question, expected, strict_spelling, raw_response, extracted, correct, prompt_tokens, completion_tokens, cost, latency_ms, error)
-    VALUES (@run_id, @test_case_id, @tuning, @question, @expected, @strict_spelling, @raw_response, @extracted, @correct, @prompt_tokens, @completion_tokens, @cost, @latency_ms, @error)
+    INSERT INTO run_results (run_id, test_case_id, tuning, question, expected, strict_spelling, raw_response, extracted, correct, prompt_tokens, completion_tokens, cost, latency_ms, error, reasoning_content)
+    VALUES (@run_id, @test_case_id, @tuning, @question, @expected, @strict_spelling, @raw_response, @extracted, @correct, @prompt_tokens, @completion_tokens, @cost, @latency_ms, @error, @reasoning_content)
   `);
   const result = stmt.run({
     ...row,
