@@ -35,9 +35,9 @@ The first closed-source model is GPT-5.4 at 9th place. Claude Opus is 10th. Ever
 
 ## The most dramatic swings
 
-DeepSeek V3.2 Speciale scored **0%** in the original post. I called it out by name. Turns out it was getting nearly every answer right — but with sharps the grader couldn't parse. After the fix: **94.51%**, tied for first. I owe DeepSeek an apology.
+DeepSeek V3.2 Speciale and MiniMax M2.5 initially showed 0% and 5.5%. Their original runs had a separate issue: `max_tokens: 64` was truncating their reasoning output before they could emit an answer. After re-running with proper token limits — plus the grading fix — DeepSeek V3.2 Speciale lands at **94.51%**, tied for first, and MiniMax M2.5 hits **82.97%**.
 
-MiniMax M2.5 went from 5.5% to **82.97%**. Same story — the model was performing well, but its correct sharp-note answers were being silently discarded.
+Two compounding errors: a config mistake that silenced reasoning models, and a grading bug that penalized sharp notes across every model. Together they painted a false picture of the leaderboard.
 
 Meanwhile, models at the bottom barely moved. Llama 4 Scout went from ~14% to 13.74%. Claude Sonnet from 22.5% to 22.53%. The grading bug only affected models that were actually getting sharp notes right. Models that couldn't read tabs still can't.
 

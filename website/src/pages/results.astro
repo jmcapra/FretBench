@@ -37,7 +37,7 @@ const tuningAbbrev: Record<string, string> = {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Results — FretBench</title>
   <meta name="description" content="Full benchmark results — leaderboard, tuning difficulty, and hardest questions." />
-  <link rel="icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
   <meta name="generator" content={Astro.generator} />
 </head>
 <body>
@@ -72,6 +72,14 @@ const tuningAbbrev: Record<string, string> = {
   <section class="section chart-section">
     <div class="chart-container">
       <canvas id="scoreChart"></canvas>
+    </div>
+  </section>
+
+  <!-- Score vs Cost Scatter -->
+  <section class="section chart-section">
+    <h2 class="section-heading">Score vs Cost</h2>
+    <div class="chart-container chart-container--square">
+      <canvas id="scatterChart"></canvas>
     </div>
   </section>
 
@@ -295,6 +303,123 @@ const tuningAbbrev: Record<string, string> = {
         }
       }
     });
+
+    // ── Scatter: Score vs Cost ──
+    const scatterCtx = document.getElementById('scatterChart') as HTMLCanvasElement;
+    const owColor = 'hsl(36, 80%, 50%)';
+    const closedColor = 'hsl(220, 30%, 55%)';
+
+    const points = data.map((m: any) => ({
+      x: m.total_cost,
+      y: m.score_pct,
+      label: m.model_name,
+      provider: m.provider,
+      open_weight: m.open_weight,
+    }));
+
+    const owPoints = points.filter((p: any) => p.open_weight);
+    const closedPoints = points.filter((p: any) => !p.open_weight);
+
+    new Chart(scatterCtx, {
+      type: 'scatter',
+      data: {
+        datasets: [
+          {
+            label: 'Open Weight',
+            data: owPoints,
+            backgroundColor: owColor,
+            borderColor: owColor,
+            pointRadius: 6,
+            pointHoverRadius: 9,
+          },
+          {
+            label: 'Closed Source',
+            data: closedPoints,
+            backgroundColor: closedColor,
+            borderColor: closedColor,
+            pointRadius: 6,
+            pointHoverRadius: 9,
+            pointStyle: 'rectRot',
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1,
+        plugins: {
+          legend: {
+            position: 'top',
+            align: 'end',
+            labels: {
+              color: '#C4B89E',
+              font: { family: "'Courier Prime', monospace", size: 11 },
+              usePointStyle: true,
+              pointStyleWidth: 12,
+              padding: 16,
+            },
+          },
+          tooltip: {
+            backgroundColor: '#181510',
+            borderColor: '#332E25',
+            borderWidth: 1,
+            titleColor: '#EDE7DA',
+            bodyColor: '#C4B89E',
+            titleFont: { family: "'Courier Prime', monospace", size: 13, weight: 'bold' },
+            bodyFont: { family: "'Courier Prime', monospace", size: 12 },
+            padding: 12,
+            cornerRadius: 4,
+            callbacks: {
+              title: (items: any) => items[0]?.raw?.label ?? '',
+              label: (ctx: any) => [
+                `Score: ${ctx.raw.y.toFixed(1)}%`,
+                `Cost: $${ctx.raw.x.toFixed(3)}`,
+                `Provider: ${ctx.raw.provider}`,
+              ],
+            },
+          },
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Cost ($)',
+              color: '#7A6E58',
+              font: { family: "'Courier Prime', monospace", size: 11 },
+            },
+            ticks: {
+              color: '#7A6E58',
+              font: { family: "'Courier Prime', monospace", size: 11 },
+              callback: (v: any) => '$' + Number(v).toFixed(2),
+            },
+            grid: { color: 'rgba(51, 46, 37, 0.5)' },
+            border: { display: false },
+          },
+          y: {
+            min: 0,
+            max: 100,
+            title: {
+              display: true,
+              text: 'Score (%)',
+              color: '#7A6E58',
+              font: { family: "'Courier Prime', monospace", size: 11 },
+            },
+            ticks: {
+              color: '#7A6E58',
+              font: { family: "'Courier Prime', monospace", size: 11 },
+              callback: (v: any) => v + '%',
+              stepSize: 20,
+            },
+            grid: { color: 'rgba(51, 46, 37, 0.5)' },
+            border: { display: false },
+          },
+        },
+        animation: {
+          duration: 800,
+          easing: 'easeOutQuart',
+        },
+      },
+    });
   }
 </script>
 
@@ -385,6 +510,12 @@ const tuningAbbrev: Record<string, string> = {
     border: 1px solid var(--border);
     border-radius: 6px;
     padding: 1.5rem 1.5rem 1rem;
+  }
+
+  .chart-container--square {
+    aspect-ratio: 1 / 1;
+    height: auto;
+    max-width: 560px;
   }
 
   /* ─── Tables ─── */
