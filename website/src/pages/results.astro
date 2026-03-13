@@ -44,6 +44,9 @@ const tuningAbbrev: Record<string, string> = {
 
 <nav>
   <a href="/" class="wordmark">FretBench</a>
+  <button class="nav-toggle" aria-label="Toggle menu">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </button>
   <div class="nav-links">
     <a href="/results" class="nav-link nav-link--active">Results</a>
     <a href="/blog" class="nav-link">Blog</a>
@@ -78,7 +81,7 @@ const tuningAbbrev: Record<string, string> = {
   <!-- Score vs Cost Scatter -->
   <section class="section chart-section">
     <h2 class="section-heading">Score vs Cost</h2>
-    <div class="chart-container chart-container--square">
+    <div class="chart-container chart-container--scatter">
       <canvas id="scatterChart"></canvas>
     </div>
   </section>
@@ -216,6 +219,12 @@ const tuningAbbrev: Record<string, string> = {
   <p class="footer-note">Open source &middot; MIT license</p>
 </footer>
 
+<script>
+  document.querySelector('.nav-toggle')?.addEventListener('click', () => {
+    document.querySelector('.nav-links')?.classList.toggle('open');
+  });
+</script>
+
 <script define:vars={{ leaderboard }}>
   window.__CHART_DATA__ = leaderboard;
 </script>
@@ -346,7 +355,7 @@ const tuningAbbrev: Record<string, string> = {
       options: {
         responsive: true,
         maintainAspectRatio: true,
-        aspectRatio: 1,
+        aspectRatio: 2,
         plugins: {
           legend: {
             position: 'top',
@@ -512,10 +521,9 @@ const tuningAbbrev: Record<string, string> = {
     padding: 1.5rem 1.5rem 1rem;
   }
 
-  .chart-container--square {
-    aspect-ratio: 1 / 1;
+  .chart-container--scatter {
+    aspect-ratio: 2 / 1;
     height: auto;
-    max-width: 560px;
   }
 
   /* ─── Tables ─── */
@@ -757,15 +765,27 @@ const tuningAbbrev: Record<string, string> = {
   @media (max-width: 820px) {
     main { padding: 2.5rem 1.5rem; }
     .tuning-cards { grid-template-columns: repeat(2, 1fr); }
-    .col-tuning, .col-cost { display: none; }
+    .col-tuning, .col-cost, .col-date { display: none; }
     .results-table thead .col-tuning,
-    .results-table thead .col-cost { display: none; }
+    .results-table thead .col-cost,
+    .results-table thead .col-date { display: none; }
     .chart-container { height: 260px; padding: 1rem; }
+    .chart-container--scatter { aspect-ratio: auto; height: 300px; }
   }
 
   @media (max-width: 480px) {
+    main { padding: 2rem 1.25rem; }
     .tuning-cards { grid-template-columns: 1fr; }
-    .chart-container { height: 220px; }
+    .chart-container { height: 220px; padding: 0.75rem; }
+    .chart-container--scatter { height: 260px; }
+    .section { margin-bottom: 2.5rem; }
+    .section-heading { font-size: 1.3rem; }
+    h1 { font-size: 2rem; }
+    .results-meta { gap: 0.75rem; }
+    .col-bar { display: none; }
+    .results-table thead .col-bar { display: none; }
+    .dataset-info { gap: 1.25rem; }
+    .dataset-stat-num { font-size: 1.3rem; }
   }
 </style>
 

@@ -34,6 +34,9 @@ const tuningAbbrev: Record<string, string> = {
 
 <nav>
   <span class="wordmark">FretBench</span>
+  <button class="nav-toggle" aria-label="Toggle menu">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </button>
   <div class="nav-links">
     <a href="/results" class="nav-link">Results</a>
     <a href="/blog" class="nav-link">Blog</a>
@@ -60,8 +63,8 @@ const tuningAbbrev: Record<string, string> = {
         <a href="https://github.com/jmcapra/FretBench" class="cta-primary" target="_blank" rel="noopener">
           View on GitHub
         </a>
-        <a href="https://github.com/jmcapra/FretBench/blob/main/test-cases.json" class="cta-secondary" target="_blank" rel="noopener">
-          Browse test cases
+        <a href="/results" class="cta-secondary">
+          View results
         </a>
       </div>
     </div>
@@ -173,6 +176,12 @@ const tuningAbbrev: Record<string, string> = {
   </div>
   <p class="footer-note">Open source &middot; MIT license</p>
 </footer>
+
+<script>
+  document.querySelector('.nav-toggle')?.addEventListener('click', () => {
+    document.querySelector('.nav-links')?.classList.toggle('open');
+  });
+</script>
 
 <script>
   import { animate } from 'motion';
@@ -797,10 +806,29 @@ const tuningAbbrev: Record<string, string> = {
     .hero-right { padding: 3rem 1.5rem; }
     footer { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
     .lb-inner { padding: 3rem 1.5rem; }
-    .col-tuning, .col-cost { display: none; }
+    .col-tuning, .col-cost, .col-date { display: none; }
     .lb-table thead .col-tuning,
-    .lb-table thead .col-cost { display: none; }
+    .lb-table thead .col-cost,
+    .lb-table thead .col-date { display: none; }
     .lb-chart-container { height: 200px; padding: 1rem; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-left { padding: 2.5rem 1.25rem 2rem; }
+    .hero-right { padding: 2rem 1rem; }
+    h1 { font-size: 3.5rem; margin-bottom: 1.5rem; }
+    .tagline { font-size: 1rem; margin-bottom: 2rem; }
+    .tab-display { font-size: 0.75rem; padding: 1rem 1.25rem; line-height: 1.8; }
+    .tab-card { max-width: 100%; }
+    .lb-inner { padding: 2rem 1.25rem; }
+    .lb-heading { font-size: 1.6rem; }
+    .lb-chart-container { height: 180px; padding: 0.75rem; }
+    .col-bar { display: none; }
+    .lb-table thead .col-bar { display: none; }
+    .stats { gap: 0.75rem; }
+    .stat-num { font-size: 1.1rem; }
+    .stat-label { font-size: 0.65rem; }
+    footer { padding: 1.25rem; }
   }
 </style>
 

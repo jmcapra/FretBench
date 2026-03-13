@@ -21,6 +21,9 @@ const { title, description, pubDate, updatedDate } = Astro.props;
 
 <nav>
   <a href="/" class="wordmark">FretBench</a>
+  <button class="nav-toggle" aria-label="Toggle menu">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </button>
   <div class="nav-links">
     <a href="/results" class="nav-link">Results</a>
     <a href="/blog" class="nav-link">Blog</a>
@@ -51,6 +54,12 @@ const { title, description, pubDate, updatedDate } = Astro.props;
     </div>
   </article>
 </main>
+
+<script>
+  document.querySelector('.nav-toggle')?.addEventListener('click', () => {
+    document.querySelector('.nav-links')?.classList.toggle('open');
+  });
+</script>
 
 <footer>
   <p class="footer-note">Open source &middot; MIT license</p>
