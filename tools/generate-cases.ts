@@ -699,12 +699,12 @@ multiStringMelody(DRB, [
 
 // Standard: bass note starts, melody enters later
 offsetArpeggio(STD, [
-  { stringIdx: 5, fret: 3, pos: 1 },   // G
-  { stringIdx: 4, fret: 2, pos: 1 },   // B (simultaneous with above, thickest first)
-  { stringIdx: 2, fret: 0, pos: 5 },   // G
-  { stringIdx: 1, fret: 0, pos: 9 },   // B
-  { stringIdx: 0, fret: 3, pos: 13 },  // G
-], 3, 18, 'nth');  // 3rd note = G string fret 0 = G
+  { stringIdx: 5, fret: 3, pos: 1 },   // E string fret 3 = G
+  { stringIdx: 4, fret: 2, pos: 3 },   // A string fret 2 = B (staggered so events are sequential)
+  { stringIdx: 2, fret: 0, pos: 7 },   // G string fret 0 = G
+  { stringIdx: 1, fret: 0, pos: 11 },  // B string fret 0 = B
+  { stringIdx: 0, fret: 3, pos: 15 },  // e string fret 3 = G
+], 3, 20, 'nth');  // 3rd note = G string fret 0 = G
 
 // Half-Step Down: alternating strings
 offsetArpeggio(HSD, [
@@ -806,15 +806,15 @@ noteAfterQuestion(DRB, 4, [0, 2, 4, 5, 7, 9], 2);   // Ab: after fret 4(C) → f
 
 // ──── More multi-string with complex questions ────
 
-// Standard: bass + treble simultaneous notes, ask about 3rd note overall
+// Standard: bass + treble octave pairs (staggered, not simultaneous)
 arpeggio(STD, [
-  { stringIdx: 5, fret: 0, pos: 1 },   // E
-  { stringIdx: 0, fret: 0, pos: 1 },   // E (simultaneous)
-  { stringIdx: 5, fret: 3, pos: 7 },   // G
-  { stringIdx: 0, fret: 3, pos: 7 },   // G (simultaneous)
-  { stringIdx: 4, fret: 2, pos: 13 },  // B
-  { stringIdx: 1, fret: 0, pos: 13 },  // B (simultaneous)
-], 5, 18);  // 5th note = sorted by pos then thickest: pos13 → A fret 2 = B
+  { stringIdx: 5, fret: 0, pos: 1 },   // E (low)
+  { stringIdx: 0, fret: 0, pos: 2 },   // E (high octave, staggered by 1)
+  { stringIdx: 5, fret: 3, pos: 7 },   // G (low)
+  { stringIdx: 0, fret: 3, pos: 8 },   // G (high octave)
+  { stringIdx: 4, fret: 2, pos: 13 },  // B (A string)
+  { stringIdx: 1, fret: 0, pos: 14 },  // B (B string open)
+], 5, 18);  // Sorted by pos: E,E,G,G,B,B → 5th = A fret 2 = B
 
 // ──── Additional riffs ────
 
@@ -846,24 +846,21 @@ arpeggio(STD, [
   add(HSD, lines, `What is the 2nd note played on the Gb string?`, note);
 }
 
-// Drop D: complex riff on multiple strings
+// Drop D: complex riff on multiple strings (all positions staggered, no chords)
 {
-  const W = 30;
+  const W = 32;
   const lines: TabLine[] = DRD.strings.map((s) => {
     return { label: s.label, content: emptyLine(W) };
   });
-  // D(6th): ---0---0---0---0---
-  lines[5].content = pad('---0-------0-------', W);
-  // A:      -------0-------0---
-  lines[4].content = pad('-------0-------0---', W);
-  // D(4th): ---2---2---2---2---
-  lines[3].content = pad('---2---2---2---2---', W);
-  // G:      -0---0---0---0-----
-  lines[2].content = pad('-0---0---0---0-----', W);
+  lines[5].content = pad('-0-------0-------', W);          // D(6th): pos 1, 9
+  lines[4].content = pad('-----0-------0---', W);          // A:      pos 5, 13
+  lines[3].content = pad('---2---2---2---2-', W);          // D(4th): pos 3, 7, 11, 15
+  lines[2].content = pad('------0-------0--', W);          // G:      pos 6, 14
 
-  // Events by position: G:1, D6:3, G:5, A:7, D4:7(tie), G:9, D6:11, D4:11, G:13, A:15, D4:15
-  // 5th note overall = G:9 = G fret 0 = G
-  add(DRD, lines, 'What is the 5th note played?', 'G');
+  // Positions (all unique): 1 D6, 3 D4, 5 A, 6 G, 7 D4, 9 D6, 11 D4, 13 A, 14 G, 15 D4
+  // Notes:                  D,  E,  A, G, E,  D,  E,  A,  G,  E
+  // 5th note = pos 7 = D4 fret 2 = E
+  add(DRD, lines, 'What is the 5th note played?', 'E');
 }
 
 // Standard: walking bass line on E and A strings
@@ -872,15 +869,14 @@ arpeggio(STD, [
   const lines: TabLine[] = STD.strings.map((s) => {
     return { label: s.label, content: emptyLine(W) };
   });
+  // E string and A string staggered so no two notes land on the same column.
+  // E:3,7,11,15  A:5,9,13  →  E,A,G,B,A,C,B
   lines[5].content = pad('---0---3---5---7---', W);
-  lines[4].content = pad('-------0---2---3---', W);
+  lines[4].content = pad('-----0---2---3-----', W);
 
-  // sorted by pos: E:3=E, E:7=G, A:7=A (tie, thickest), E:11=A, A:11=B, E:15=B, A:15=C, E:19... no
-  // Actually let me recalculate positions
-  // E: frets at pos 3,7,11,15  →  E,G,A,B
-  // A: frets at pos 7,11,15    →  A,B,C
-  // sorted: (3,E), (7,A-thickest=A), (7,E-string=G), (11,A=B), (11,E=A), (15,A=C), (15,E=B)
-  // 6th note = A fret 3 at pos 15 = C
+  // Sorted by pos:
+  //   (3,E,0)=E, (5,A,0)=A, (7,E,3)=G, (9,A,2)=B, (11,E,5)=A, (13,A,3)=C, (15,E,7)=B
+  // 6th note = A fret 3 at pos 13 = C
   add(STD, lines, 'What is the 6th note played?', 'C');
 }
 
@@ -976,6 +972,608 @@ melodyOnString(DRB, 5, [0, 5, 12, 7, 3], 3);          // Db(6th) fret 12 = C#...
 }
 
 // ════════════════════════════════════════════════
+//  HARD CASES: Chords, Transposition, Capo, Relative Fret
+// ════════════════════════════════════════════════
+
+// ─── New Music Theory Helpers ───
+
+// Open string MIDI note numbers (stringIdx 0=thinnest → 5=thickest)
+const OPEN_MIDI: Record<string, number[]> = {
+  'Standard':       [64, 59, 55, 50, 45, 40],  // E4, B3, G3, D3, A2, E2
+  'Half-Step Down': [63, 58, 54, 49, 44, 39],  // Eb4, Bb3, Gb3, Db3, Ab2, Eb2
+  'Drop D':         [64, 59, 55, 50, 45, 38],  // E4, B3, G3, D3, A2, D2
+  'Drop Db':        [63, 58, 54, 49, 44, 37],  // Eb4, Bb3, Gb3, Db3, Ab2, Db2
+};
+
+function midiNote(tuning: TuningDef, stringIdx: number, fret: number): number {
+  return OPEN_MIDI[tuning.name][stringIdx] + fret;
+}
+
+function transposeNote(note: string, semitones: number): string {
+  const idx = noteIndex(note);
+  return SHARP_NAMES[((idx + semitones) % 12 + 12) % 12];
+}
+
+// ─── Chord Tab Builder ───
+
+// A chord: array of 6 values (stringIdx 0–5), null = string not played
+type Chord = (number | null)[];
+
+function buildChordTab(tuning: TuningDef, chords: Chord[]): TabLine[] {
+  const gap = 3;
+
+  // Width per chord column: max digit count across strings in that chord
+  const colWidths = chords.map(chord => {
+    let w = 1;
+    for (const f of chord) {
+      if (f != null) w = Math.max(w, String(f).length);
+    }
+    return w;
+  });
+
+  let totalWidth = gap;
+  const colPositions: number[] = [];
+  for (let ci = 0; ci < chords.length; ci++) {
+    colPositions.push(totalWidth);
+    totalWidth += colWidths[ci] + gap;
+  }
+
+  const lines: TabLine[] = tuning.strings.map((s) => ({
+    label: s.label,
+    content: '-'.repeat(totalWidth),
+  }));
+
+  for (let ci = 0; ci < chords.length; ci++) {
+    const chord = chords[ci];
+    const pos = colPositions[ci];
+    const colW = colWidths[ci];
+    for (let si = 0; si < 6; si++) {
+      const arr = lines[si].content.split('');
+      if (chord[si] != null) {
+        const fretStr = String(chord[si]);
+        for (let c = 0; c < colW; c++) {
+          arr[pos + c] = c < fretStr.length ? fretStr[c] : '-';
+        }
+      }
+      lines[si].content = arr.join('');
+    }
+  }
+
+  return lines;
+}
+
+// ─── Chord Question Generators ───
+
+// Ask about a specific string in a specific chord
+function chordNoteOnString(
+  tuning: TuningDef,
+  chords: Chord[],
+  askChordIdx: number,
+  askStringIdx: number,
+) {
+  const lines = buildChordTab(tuning, chords);
+  const fret = chords[askChordIdx][askStringIdx];
+  if (fret == null) throw new Error(`Asked about unpicked string ${askStringIdx} in chord ${askChordIdx}`);
+  const note = resolveNote(tuning, askStringIdx, fret);
+  const desc = stringDescriptor(tuning, askStringIdx);
+  const chordLabel = chords.length === 1 ? 'the chord' : `the ${ordinal(askChordIdx + 1)} chord`;
+  add(tuning, lines, `What note is played on the ${desc} string in ${chordLabel}?`, note);
+}
+
+// Ask for the note on the thickest (lowest) played string
+function lowestStringInChord(tuning: TuningDef, chord: Chord) {
+  const lines = buildChordTab(tuning, [chord]);
+  let thickestIdx = -1;
+  for (let si = 5; si >= 0; si--) {
+    if (chord[si] != null) { thickestIdx = si; break; }
+  }
+  if (thickestIdx < 0) throw new Error('Empty chord');
+  const note = resolveNote(tuning, thickestIdx, chord[thickestIdx]!);
+  add(tuning, lines, 'What note is played on the lowest string in this chord?', note);
+}
+
+// Ask for the lowest-pitched note (requires octave-aware comparison)
+function lowestPitchInChord(tuning: TuningDef, chord: Chord) {
+  const lines = buildChordTab(tuning, [chord]);
+  let minMidi = Infinity;
+  let minStringIdx = -1;
+  for (let si = 0; si < 6; si++) {
+    if (chord[si] != null) {
+      const midi = midiNote(tuning, si, chord[si]!);
+      if (midi < minMidi) {
+        minMidi = midi;
+        minStringIdx = si;
+      }
+    }
+  }
+  if (minStringIdx < 0) throw new Error('Empty chord');
+  const note = resolveNote(tuning, minStringIdx, chord[minStringIdx]!);
+  add(tuning, lines, 'What is the lowest pitched note in this chord?', note);
+}
+
+// ─── Reasoning-on-Top Generators (single-note — legacy, kept for existing cases) ───
+
+function transpositionQuestion(
+  tuning: TuningDef, stringIdx: number, fret: number, semitones: number,
+) {
+  const W = 12;
+  const fretStr = String(fret);
+  const lines: TabLine[] = tuning.strings.map((s, i) => ({
+    label: s.label,
+    content: i === stringIdx ? pad(`---${fretStr}---`, W) : emptyLine(W),
+  }));
+  const baseNote = resolveNote(tuning, stringIdx, fret);
+  const transposed = transposeNote(baseNote, semitones);
+  const direction = semitones > 0 ? 'up' : 'down';
+  const desc = stringDescriptor(tuning, stringIdx);
+  add(tuning, lines,
+    `If the note on the ${desc} string is transposed ${direction} ${Math.abs(semitones)} semitones, what note do you get?`,
+    transposed);
+}
+
+function capoQuestion(
+  tuning: TuningDef, stringIdx: number, playedFret: number, capoFret: number,
+) {
+  const W = 12;
+  const fretStr = String(playedFret);
+  const lines: TabLine[] = tuning.strings.map((s, i) => ({
+    label: s.label,
+    content: i === stringIdx ? pad(`---${fretStr}---`, W) : emptyLine(W),
+  }));
+  const note = noteAtFret(tuning.strings[stringIdx].openNote, capoFret + playedFret);
+  const desc = stringDescriptor(tuning, stringIdx);
+  add(tuning, lines,
+    `A capo is placed on fret ${capoFret}. What note sounds when fret ${playedFret} is played on the ${desc} string?`,
+    note);
+}
+
+function relativeFretQuestion(
+  tuning: TuningDef, stringIdx: number, fret: number, offset: number,
+) {
+  const targetFret = fret + offset;
+  if (targetFret < 0 || targetFret > 24) throw new Error(`Target fret ${targetFret} out of range`);
+  const W = 12;
+  const fretStr = String(fret);
+  const lines: TabLine[] = tuning.strings.map((s, i) => ({
+    label: s.label,
+    content: i === stringIdx ? pad(`---${fretStr}---`, W) : emptyLine(W),
+  }));
+  const note = noteAtFret(tuning.strings[stringIdx].openNote, targetFret);
+  const desc = stringDescriptor(tuning, stringIdx);
+  const direction = offset > 0 ? 'higher' : 'lower';
+  add(tuning, lines,
+    `What note is ${Math.abs(offset)} frets ${direction} than the note played on the ${desc} string?`,
+    note);
+}
+
+// ─── Reasoning-on-Top Generators (chord context — v2) ───
+
+// Transpose: asks about a specific string within a chord
+function transpositionFromChord(
+  tuning: TuningDef,
+  chord: Chord,
+  askStringIdx: number,
+  semitones: number,
+) {
+  const lines = buildChordTab(tuning, [chord]);
+  const fret = chord[askStringIdx];
+  if (fret == null) throw new Error(`Asked about unpicked string ${askStringIdx}`);
+  const baseNote = resolveNote(tuning, askStringIdx, fret);
+  const transposed = transposeNote(baseNote, semitones);
+  const direction = semitones > 0 ? 'up' : 'down';
+  const desc = stringDescriptor(tuning, askStringIdx);
+  add(tuning, lines,
+    `If the note on the ${desc} string is transposed ${direction} ${Math.abs(semitones)} semitones, what note do you get?`,
+    transposed);
+}
+
+// Capo: asks about a specific string within a chord, with capo context
+function capoFromChord(
+  tuning: TuningDef,
+  chord: Chord,
+  askStringIdx: number,
+  capoFret: number,
+) {
+  const lines = buildChordTab(tuning, [chord]);
+  const playedFret = chord[askStringIdx];
+  if (playedFret == null) throw new Error(`Asked about unpicked string ${askStringIdx}`);
+  const note = noteAtFret(tuning.strings[askStringIdx].openNote, capoFret + playedFret);
+  const desc = stringDescriptor(tuning, askStringIdx);
+  add(tuning, lines,
+    `A capo is placed on fret ${capoFret}. What note sounds when fret ${playedFret} is played on the ${desc} string?`,
+    note);
+}
+
+// Relative fret: asks about a note N frets away from what's played on a string in a chord
+function relativeFretFromChord(
+  tuning: TuningDef,
+  chord: Chord,
+  askStringIdx: number,
+  offset: number,
+) {
+  const fret = chord[askStringIdx];
+  if (fret == null) throw new Error(`Asked about unpicked string ${askStringIdx}`);
+  const targetFret = fret + offset;
+  if (targetFret < 0 || targetFret > 24) throw new Error(`Target fret ${targetFret} out of range`);
+  const lines = buildChordTab(tuning, [chord]);
+  const note = noteAtFret(tuning.strings[askStringIdx].openNote, targetFret);
+  const desc = stringDescriptor(tuning, askStringIdx);
+  const direction = offset > 0 ? 'higher' : 'lower';
+  add(tuning, lines,
+    `What note is ${Math.abs(offset)} frets ${direction} than the note played on the ${desc} string?`,
+    note);
+}
+
+// ──── Hard Cases: Chord Note on String ────
+
+// Standard: Am → C, ask G string in 2nd chord
+chordNoteOnString(STD, [
+  [0, 1, 2, 2, 0, null],  // Am
+  [0, 1, 0, 2, 3, null],  // C
+], 1, 2);  // G in C = G+0 = G
+
+// Half-Step Down: two power chords, ask Db string in 1st
+chordNoteOnString(HSD, [
+  [null, null, null, 1, 1, null],  // power chord fret 1
+  [null, null, null, 3, 3, null],  // power chord fret 3
+], 0, 3);  // Db+1 = D
+
+// Drop D: D shape → G shape, ask A string in 2nd chord
+chordNoteOnString(DRD, [
+  [2, 3, 2, 0, 0, 0],    // open D shape
+  [3, 0, 0, 0, 2, 3],    // G chord
+], 1, 4);  // A+2 = B
+
+// Drop Db: barre chords, ask Bb string in 1st
+chordNoteOnString(DRB, [
+  [4, 4, 5, 6, 6, 4],    // barre fret 4
+  [6, 6, 7, 8, 8, 6],    // barre fret 6
+], 0, 1);  // Bb+4 = D
+
+// Standard: E → A → D, ask D string in 3rd chord
+chordNoteOnString(STD, [
+  [0, 0, 1, 2, 2, 0],    // E major
+  [0, 2, 2, 2, 0, null],  // A major
+  [2, 3, 2, 0, null, null], // D major
+], 2, 3);  // D+0 = D
+
+// Half-Step Down: jazz voicings, ask eb string in 1st
+chordNoteOnString(HSD, [
+  [3, 3, 3, 4, null, null],
+  [5, 6, 5, 5, null, null],
+], 0, 0);  // eb+3 = F# → Gb
+
+// ──── Hard Cases: Lowest String in Chord ────
+
+// Standard: Am (thickest played = A string)
+lowestStringInChord(STD, [0, 1, 2, 2, 0, null]);  // A+0 = A
+
+// Drop D: power chord with open dropped bass
+lowestStringInChord(DRD, [null, null, null, 5, 5, 0]);  // D(6th)+0 = D
+
+// Half-Step Down: full barre at fret 3
+lowestStringInChord(HSD, [3, 3, 3, 3, 3, 3]);  // Eb+3 = F#
+
+// Drop Db: partial chord, thickest = Ab
+lowestStringInChord(DRB, [null, null, 4, 4, 2, null]);  // Ab+2 = A#
+
+// ──── Hard Cases: Lowest Pitched Note (octave-aware) ────
+
+// Standard: E string at fret 12 vs A string open — A is lower
+lowestPitchInChord(STD, [null, null, null, null, 0, 12]);  // E@12=MIDI52, A@0=MIDI45 → A
+
+// Standard: normal G chord — E string IS lowest (no trick)
+lowestPitchInChord(STD, [3, 0, 0, 0, 2, 3]);  // E@3=MIDI43 wins → G
+
+// Drop D: D(6th) at fret 14 vs A open — A is lower
+lowestPitchInChord(DRD, [null, null, 0, 5, 0, 14]);  // D6@14=MIDI52, A@0=MIDI45 → A
+
+// Half-Step Down: Eb(6th) at fret 10 vs Ab open — Ab is lower
+lowestPitchInChord(HSD, [null, null, null, null, 0, 10]);  // Eb6@10=MIDI49, Ab@0=MIDI44 → Ab
+
+// ──── Hard Cases: Transposition ────
+
+// Standard: G string fret 5 (C), transpose up 7 → G
+transpositionQuestion(STD, 2, 5, 7);
+
+// Half-Step Down: Db string fret 4 (F), transpose up 3 → G#
+transpositionQuestion(HSD, 3, 4, 3);
+
+// Drop D: D(6th) string fret 7 (A), transpose down 4 → F
+transpositionQuestion(DRD, 5, 7, -4);
+
+// Standard: e string fret 8 (C), transpose up 5 → F
+transpositionQuestion(STD, 0, 8, 5);
+
+// Drop Db: Gb string fret 9 (D#/Eb), transpose down 6 → A
+transpositionQuestion(DRB, 2, 9, -6);
+
+// ──── Hard Cases: Capo ────
+
+// Standard: capo fret 3, play fret 5 on G string → G+8 = D#
+capoQuestion(STD, 2, 5, 3);
+
+// Standard: capo fret 5, open string on A → A+5 = D
+capoQuestion(STD, 4, 0, 5);
+
+// Half-Step Down: capo fret 2, fret 3 on Bb string → Bb+5 = D#
+capoQuestion(HSD, 1, 3, 2);
+
+// Drop D: capo fret 4, fret 2 on D(6th) → D+6 = G#
+capoQuestion(DRD, 5, 2, 4);
+
+// ──── Hard Cases: Relative Fret ────
+
+// Standard: A string fret 5, 4 frets higher → fret 9 = F#
+relativeFretQuestion(STD, 4, 5, 4);
+
+// Half-Step Down: Gb string fret 7, 3 frets lower → fret 4 = A#
+relativeFretQuestion(HSD, 2, 7, -3);
+
+// Drop D: D(6th) string fret 3, 7 frets higher → fret 10 = C
+relativeFretQuestion(DRD, 5, 3, 7);
+
+// Standard: B string fret 5, 6 frets higher → fret 11 = A#
+relativeFretQuestion(STD, 1, 5, 6);
+
+// ──── Hard Cases v2: Reasoning with real chord context ────
+
+// — Transposition from chords —
+
+// Standard: G chord, ask G string (fret 0 = G), transpose up 7 → D
+transpositionFromChord(STD, [3, 0, 0, 0, 2, 3], 2, 7);
+
+// Half-Step Down: full barre fret 3, ask Db string (fret 3 = E), transpose up 4 → G#
+transpositionFromChord(HSD, [3, 3, 3, 3, 3, 3], 3, 4);
+
+// Drop D: power chord fret 5, ask A string (fret 5 = D), transpose down 3 → B
+transpositionFromChord(DRD, [null, null, null, 5, 5, 5], 4, -3);
+
+// Standard: Am chord, ask B string (fret 1 = C), transpose up 5 → F
+transpositionFromChord(STD, [0, 1, 2, 2, 0, null], 1, 5);
+
+// Drop Db: barre fret 4, ask Gb string (fret 5 = B), transpose down 6 → F
+transpositionFromChord(DRB, [4, 4, 5, 6, 6, 4], 2, -6);
+
+// — Capo from chords —
+
+// Standard: C chord, capo 2, ask G string (fret 0) → G+2+0 = A
+capoFromChord(STD, [0, 1, 0, 2, 3, null], 2, 2);
+
+// Standard: E chord, capo 3, ask D string (fret 2) → D+3+2 = G
+capoFromChord(STD, [0, 0, 1, 2, 2, 0], 3, 3);
+
+// Half-Step Down: power chord fret 1, capo 4, ask Ab string (fret 1) → Ab+5 = C#
+capoFromChord(HSD, [null, null, null, 1, 1, null], 4, 4);
+
+// Drop D: open D shape, capo 5, ask e string (fret 2) → E+7 = B
+capoFromChord(DRD, [2, 3, 2, 0, 0, 0], 0, 5);
+
+// — Relative fret from chords —
+
+// Standard: G chord, ask A string (fret 2), 4 higher → fret 6 = D#
+relativeFretFromChord(STD, [3, 0, 0, 0, 2, 3], 4, 4);
+
+// Half-Step Down: barre fret 5, ask Gb string (fret 5), 3 lower → fret 2 = G#
+relativeFretFromChord(HSD, [5, 5, 5, 5, 5, 5], 2, -3);
+
+// Drop D: all open, ask D(6th) string (fret 0), 7 higher → fret 7 = A
+relativeFretFromChord(DRD, [0, 0, 0, 0, 0, 0], 5, 7);
+
+// Standard: D chord, ask e string (fret 2), 5 higher → fret 7 = B
+relativeFretFromChord(STD, [2, 3, 2, 0, null, null], 0, 5);
+
+// ──── Hard Cases v3: Reasoning over melodies and arpeggios ────
+
+// --- Generators: melody context ---
+
+// Transpose the Nth note in a melody on a single string
+function transposeMelodyNote(
+  tuning: TuningDef, stringIdx: number, frets: number[], askNth: number, semitones: number,
+) {
+  const W = 4 + frets.length * 4;
+  const lines: TabLine[] = tuning.strings.map((s, i) => {
+    if (i === stringIdx) {
+      const notes = frets.map(f => { const fs = String(f); return fs.length === 1 ? `-${fs}-` : `${fs}-`; }).join('-');
+      return { label: s.label, content: pad(`-${notes}`, W) };
+    }
+    return { label: s.label, content: emptyLine(W) };
+  });
+  const baseNote = resolveNote(tuning, stringIdx, frets[askNth - 1]);
+  const transposed = transposeNote(baseNote, semitones);
+  const direction = semitones > 0 ? 'up' : 'down';
+  const desc = stringDescriptor(tuning, stringIdx);
+  add(tuning, lines,
+    `If the ${ordinal(askNth)} note on the ${desc} string is transposed ${direction} ${Math.abs(semitones)} semitones, what note do you get?`,
+    transposed);
+}
+
+// Capo question about the Nth note in a melody
+function capoMelodyNote(
+  tuning: TuningDef, stringIdx: number, frets: number[], askNth: number, capoFret: number,
+) {
+  const W = 4 + frets.length * 4;
+  const lines: TabLine[] = tuning.strings.map((s, i) => {
+    if (i === stringIdx) {
+      const notes = frets.map(f => { const fs = String(f); return fs.length === 1 ? `-${fs}-` : `${fs}-`; }).join('-');
+      return { label: s.label, content: pad(`-${notes}`, W) };
+    }
+    return { label: s.label, content: emptyLine(W) };
+  });
+  const playedFret = frets[askNth - 1];
+  const note = noteAtFret(tuning.strings[stringIdx].openNote, capoFret + playedFret);
+  const desc = stringDescriptor(tuning, stringIdx);
+  add(tuning, lines,
+    `A capo is on fret ${capoFret}. What note sounds at the ${ordinal(askNth)} fret number on the ${desc} string?`,
+    note);
+}
+
+// Relative fret from Nth note in a melody
+function relativeFretMelodyNote(
+  tuning: TuningDef, stringIdx: number, frets: number[], askNth: number, offset: number,
+) {
+  const targetFret = frets[askNth - 1] + offset;
+  if (targetFret < 0 || targetFret > 24) throw new Error(`Target fret ${targetFret} out of range`);
+  const W = 4 + frets.length * 4;
+  const lines: TabLine[] = tuning.strings.map((s, i) => {
+    if (i === stringIdx) {
+      const notes = frets.map(f => { const fs = String(f); return fs.length === 1 ? `-${fs}-` : `${fs}-`; }).join('-');
+      return { label: s.label, content: pad(`-${notes}`, W) };
+    }
+    return { label: s.label, content: emptyLine(W) };
+  });
+  const note = noteAtFret(tuning.strings[stringIdx].openNote, targetFret);
+  const desc = stringDescriptor(tuning, stringIdx);
+  const direction = offset > 0 ? 'higher' : 'lower';
+  add(tuning, lines,
+    `What note is ${Math.abs(offset)} frets ${direction} than the ${ordinal(askNth)} note on the ${desc} string?`,
+    note);
+}
+
+// --- Generators: arpeggio context ---
+
+// Transpose the Nth note in an arpeggio (multi-string staggered)
+function transposeArpeggioNote(
+  tuning: TuningDef,
+  pattern: { stringIdx: number; fret: number; pos: number }[],
+  askNth: number,
+  semitones: number,
+  width: number,
+) {
+  const lines: TabLine[] = tuning.strings.map((s) => ({
+    label: s.label, content: emptyLine(width),
+  }));
+  for (const p of pattern) {
+    const content = lines[p.stringIdx].content.split('');
+    const fretStr = String(p.fret);
+    for (let c = 0; c < fretStr.length; c++) content[p.pos + c] = fretStr[c];
+    lines[p.stringIdx].content = content.join('');
+  }
+  const sorted = [...pattern].sort((a, b) => a.pos - b.pos || b.stringIdx - a.stringIdx);
+  const target = sorted[askNth - 1];
+  const baseNote = resolveNote(tuning, target.stringIdx, target.fret);
+  const transposed = transposeNote(baseNote, semitones);
+  const direction = semitones > 0 ? 'up' : 'down';
+  add(tuning, lines,
+    `If the ${ordinal(askNth)} note played is transposed ${direction} ${Math.abs(semitones)} semitones, what note do you get?`,
+    transposed);
+}
+
+// Capo question about Nth note in an arpeggio
+function capoArpeggioNote(
+  tuning: TuningDef,
+  pattern: { stringIdx: number; fret: number; pos: number }[],
+  askNth: number,
+  capoFret: number,
+  width: number,
+) {
+  const lines: TabLine[] = tuning.strings.map((s) => ({
+    label: s.label, content: emptyLine(width),
+  }));
+  for (const p of pattern) {
+    const content = lines[p.stringIdx].content.split('');
+    const fretStr = String(p.fret);
+    for (let c = 0; c < fretStr.length; c++) content[p.pos + c] = fretStr[c];
+    lines[p.stringIdx].content = content.join('');
+  }
+  const sorted = [...pattern].sort((a, b) => a.pos - b.pos || b.stringIdx - a.stringIdx);
+  const target = sorted[askNth - 1];
+  const note = noteAtFret(tuning.strings[target.stringIdx].openNote, capoFret + target.fret);
+  add(tuning, lines,
+    `A capo is on fret ${capoFret}. What note sounds at the ${ordinal(askNth)} note played?`,
+    note);
+}
+
+// --- Cases: Transposition over melodies ---
+
+// Standard: pentatonic on A string, transpose 3rd note up 4
+transposeMelodyNote(STD, 4, [0, 2, 3, 5, 7], 3, 4);  // A+3=C, C+4=E
+
+// Half-Step Down: descending on Bb string, transpose 4th note down 5
+transposeMelodyNote(HSD, 1, [12, 10, 8, 7, 5, 3], 4, -5);  // Bb+7=F, F-5=C
+
+// Drop D: blues on D(6th) string, transpose 5th note up 6
+transposeMelodyNote(DRD, 5, [0, 3, 5, 7, 5, 3], 5, 6);  // D+5=G, G+6=C#
+
+// Standard: chromatic run on G string, transpose 6th note up 3
+transposeMelodyNote(STD, 2, [0, 1, 2, 3, 4, 5, 6, 7], 6, 3);  // G+5=C, C+3=D#
+
+// Drop Db: melody on Db(4th), transpose 3rd note down 4
+transposeMelodyNote(DRB, 3, [0, 3, 5, 6, 5, 3], 3, -4);  // Db+5=Gb/F#, F#-4=D
+
+// --- Cases: Capo over melodies ---
+
+// Standard: melody on e string, capo 2, ask 4th note
+capoMelodyNote(STD, 0, [0, 3, 5, 7, 5, 3], 4, 2);  // E + 2 + 7 = E+9 = C#
+
+// Half-Step Down: melody on Gb string, capo 3, ask 3rd note
+capoMelodyNote(HSD, 2, [0, 2, 4, 5, 7], 3, 3);  // Gb + 3 + 4 = Gb+7 = C#... wait
+// Gb = F# = index 6, 6+3+4=13%12=1=C#. Yes.
+
+// Drop D: melody on A string, capo 4, ask 2nd note
+capoMelodyNote(DRD, 4, [0, 3, 5, 7, 10, 12], 2, 4);  // A + 4 + 3 = A+7 = E
+
+// Standard: melody on B string, capo 5, ask 3rd note
+capoMelodyNote(STD, 1, [0, 1, 3, 5, 3, 1], 3, 5);  // B + 5 + 3 = B+8 = G
+
+// --- Cases: Relative fret over melodies ---
+
+// Standard: pentatonic on A string, 4th note, 3 frets higher
+relativeFretMelodyNote(STD, 4, [0, 2, 3, 5, 7], 4, 3);  // fret 5+3=8, A+8=F
+
+// Half-Step Down: melody on eb, 3rd note, 3 frets lower → fret 5-3=2, Eb+2=F
+relativeFretMelodyNote(HSD, 0, [1, 3, 5, 6, 8], 3, -3);
+
+// Drop D: melody on G string, 5th note, 5 frets higher
+relativeFretMelodyNote(DRD, 2, [0, 2, 4, 5, 7, 9], 5, 5);  // fret 7+5=12, G+12=G
+
+// Standard: walk on E string, 3rd note, 6 frets higher
+relativeFretMelodyNote(STD, 5, [0, 3, 5, 7, 8, 7], 3, 6);  // fret 5+6=11, E+11=D#
+
+// --- Cases: Transposition over arpeggios ---
+
+// Standard: ascending arpeggio, transpose 4th note up 5
+transposeArpeggioNote(STD, [
+  { stringIdx: 5, fret: 3, pos: 1 },   // G
+  { stringIdx: 4, fret: 2, pos: 5 },   // B
+  { stringIdx: 3, fret: 0, pos: 9 },   // D
+  { stringIdx: 2, fret: 0, pos: 13 },  // G
+  { stringIdx: 1, fret: 3, pos: 17 },  // D
+  { stringIdx: 0, fret: 3, pos: 21 },  // G
+], 4, 5, 26);  // 4th = G+0=G, G+5=C
+
+// Half-Step Down: arpeggio, transpose 3rd note down 4
+transposeArpeggioNote(HSD, [
+  { stringIdx: 5, fret: 1, pos: 1 },   // E
+  { stringIdx: 4, fret: 3, pos: 5 },   // B
+  { stringIdx: 3, fret: 1, pos: 9 },   // D
+  { stringIdx: 2, fret: 0, pos: 13 },  // F#
+  { stringIdx: 1, fret: 2, pos: 17 },  // C
+  { stringIdx: 0, fret: 1, pos: 21 },  // E
+], 3, -4, 26);  // 3rd = Db+1=D, D-4=A#
+
+// --- Cases: Capo over arpeggios ---
+
+// Drop D: arpeggio, capo 3, ask 5th note
+capoArpeggioNote(DRD, [
+  { stringIdx: 5, fret: 0, pos: 1 },   // D
+  { stringIdx: 4, fret: 0, pos: 5 },   // A
+  { stringIdx: 3, fret: 2, pos: 9 },   // E
+  { stringIdx: 2, fret: 2, pos: 13 },  // A
+  { stringIdx: 1, fret: 3, pos: 17 },  // D
+  { stringIdx: 0, fret: 2, pos: 21 },  // F#
+], 5, 3, 26);  // 5th = B+3+3 = B+6 = F
+
+// Standard: arpeggio, capo 4, ask 2nd note
+capoArpeggioNote(STD, [
+  { stringIdx: 4, fret: 0, pos: 1 },   // A
+  { stringIdx: 3, fret: 2, pos: 5 },   // E
+  { stringIdx: 2, fret: 2, pos: 9 },   // A
+  { stringIdx: 1, fret: 1, pos: 13 },  // C
+  { stringIdx: 0, fret: 0, pos: 17 },  // E
+], 2, 4, 22);  // 2nd = D+4+2 = D+6 = G#
+
+// ════════════════════════════════════════════════
 //  OUTPUT
 // ════════════════════════════════════════════════
 
@@ -1061,7 +1659,19 @@ if (args2.includes('--merge')) {
             ? 'last-on-string'
             : tc.question.match(/\d+(st|nd|rd|th) note played on/)
               ? 'nth-on-string'
-              : 'single-chord';
+              : tc.question.includes('chord')
+                ? 'chord'
+                : tc.question.includes('lowest pitched')
+                  ? 'lowest-pitch'
+                  : tc.question.includes('lowest string')
+                    ? 'lowest-string'
+                    : tc.question.includes('transposed')
+                      ? 'transposition'
+                      : tc.question.includes('capo')
+                        ? 'capo'
+                        : (tc.question.includes('frets higher') || tc.question.includes('frets lower'))
+                          ? 'relative-fret'
+                          : 'single-chord';
     questionTypes[type] = (questionTypes[type] ?? 0) + 1;
   }
   console.log(`Generated ${generated.length} new test cases\n`);

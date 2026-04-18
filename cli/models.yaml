@@ -147,6 +147,13 @@ models:
     open_weight: true
     enabled: true
 
+  - id: google/gemma-4-31b-it
+    name: Gemma 4 31B
+    provider: Google
+    tier: mid
+    open_weight: true
+    enabled: true
+
   # === Tier 3: Small / Budget ===
   - id: mistralai/ministral-8b-2512
     name: Ministral 8B
@@ -161,3 +168,10 @@ models:
     tier: small
     open_weight: true
     enabled: false
+
+  - id: google/gemma-4-26b-a4b-it
+    name: Gemma 4 26B A4B
+    provider: Google
+    tier: small
+    open_weight: true
+    enabled: true

@@ -6,6 +6,7 @@ import { runModel, runMultiple, resolveModels } from './runner.js';
 import { getDb } from './db.js';
 import { showLeaderboard, showModelStats, exportResults, showModels } from './stats.js';
 import { regrade } from './regrade.js';
+import { backfillModel, backfillAll } from './backfill.js';
 
 const program = new Command();
 
@@ -80,6 +81,28 @@ program
   .description('Re-grade all completed run results using current grader logic and test cases')
   .action(() => {
     regrade();
+  });
+
+program
+  .command('backfill [model]')
+  .description('Run only missing test cases for existing completed runs')
+  .option('--all', 'Backfill all enabled models with missing cases')
+  .option('--dry-run', 'Show what would be backfilled without executing')
+  .option('--dataset <path>', 'Path to test cases JSON file')
+  .option('--dataset-name <name>', 'Suite identifier (default: fretbench-official)')
+  .action(async (model, options) => {
+    const dryRun = options.dryRun ?? false;
+    const datasetPath = options.dataset as string | undefined;
+    const datasetName = (options.datasetName as string | undefined) ?? 'fretbench-official';
+
+    if (options.all) {
+      await backfillAll(1, datasetName, datasetPath, dryRun);
+    } else if (model) {
+      await backfillModel(model, datasetName, datasetPath, dryRun);
+    } else {
+      console.error('Specify a model ID or --all');
+      process.exit(1);
+    }
   });
 
 program.parse();
